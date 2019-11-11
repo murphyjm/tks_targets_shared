@@ -1,0 +1,14 @@
+{
+  "rp_key":"Planet Radius Value",
+  "ms_key":"Stellar Mass (from logg)",
+  "pp_key":"Orbital Period Value",
+  "Ts_key":"Effective Temperature Value",
+  "ar_key":"ar_ratio",
+  "Jmag_key":"J mag",
+  "Vmag_key":"V mag",
+  "rs_key":"Star Radius Value",
+  "dec_key":"TIC Declination",
+  "Fp_key":"Effective Stellar Flux Value",
+  "mp_key":"m_planet",
+  "mp_units":"Earth"
+}
