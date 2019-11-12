@@ -29,7 +29,7 @@ def main():
     parser.add_argument("--output_fname", default=os.path.join("my_tois", 'my_tois_{}.txt'.format(timestr)),
                         help="Output (.txt) filename where toi list is stored.")
     args = parser.parse_args()
-    
+
     toi_fname = os.path.join("data/toi", args.toi_fname)
     exo_fname = os.path.join("data/exofop", args.exofop_fname)
     planet_df = load_and_merge(toi_fname, exo_fname)
