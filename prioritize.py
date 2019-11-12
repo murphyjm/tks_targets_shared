@@ -105,8 +105,9 @@ def main():
     ##########################################
 
     print("Priority {} targets: \n{}".format(priority, my_tois))
-    np.savetxt(args.output_fname + "_priority_{}.txt".format(priority), my_tois, fmt='%.2f')
-    print("Binning sucessful, output stored in {}".format(args.output_fname))
+    output_fname = args.output_fname + "_priority_{}.txt".format(priority)
+    np.savetxt(output_fname, my_tois, fmt='%.2f')
+    print("Binning sucessful, output stored in {}".format(output_fname))
 
 if __name__ == "__main__":
     main()
