@@ -22,7 +22,7 @@ def handle_args():
     parser.add_argument("--toi_col_dict", default='toi_col_dict.json',
                         help="The .json file with a dict to convert between standard column names and the (sometimes changing TOI column names).")
     timestr = time.strftime("%Y_%m_%d-%H_%M_%S")
-    parser.add_argument("--output_fname", default=os.path.join("my_tois", 'my_tois_{}.txt'.format(timestr)),
+    parser.add_argument("--output_fname", default=os.path.join("my_tois", 'my_tois_{}'.format(timestr)),
                         help="Output (.txt) filename where toi list is stored.")
     parser.add_argument("--use_TSM_natalie", default=False,
                         help="See utils.py, Natalie calculates the equilibrium temperature of the planet (needed to calculate the TSM) \
@@ -105,7 +105,7 @@ def main():
     ##########################################
 
     print("Priority {} targets: \n{}".format(priority, my_tois))
-    np.savetxt(args.output_fname, my_tois, fmt='%.2f')
+    np.savetxt(args.output_fname + "_priority_{}.txt".format(priority), my_tois, fmt='%.2f')
     print("Binning sucessful, output stored in {}".format(args.output_fname))
 
 if __name__ == "__main__":
