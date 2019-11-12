@@ -28,6 +28,7 @@ def handle_args():
                         help="See utils.py, Natalie calculates the equilibrium temperature of the planet (needed to calculate the TSM) \
                         slightly differently (using the planet's insolation flux) but it's slightly easier to calculate the TSM as they \
                         do in Kempton et al. 2018.")
+    parser.add_argument("--priority", default=1, help="Priority level of targets to return.")
     return parser.parse_args()
 
 def main():
@@ -35,7 +36,7 @@ def main():
     TKS prioritization code.
 
     Example command line call:
-        python prioritize.py toi+-2019-10-29.csv exofop_search2019-10-29_combined.csv --toi_col_dict toi_col_dict_foo.json
+        python prioritize.py toi+-2019-10-29.csv exofop_search2019-10-29_combined.csv
     """
     # Handle the command line input
     args = handle_args()
@@ -98,7 +99,7 @@ def main():
     all_bins = [rad_bins, fpl_bins, tef_bins]
     id_key   = "Full TOI ID"
     binned   = bin(toi_col_dict, planet_df, all_bins, id_key, "TSM")
-    priority = 1
+    priority = args.priority
     my_tois  = binned[binned["priority"]==priority].reset_index(drop=True).sort_values(id_key)[id_key].values
     ##########################################
     ##########################################
