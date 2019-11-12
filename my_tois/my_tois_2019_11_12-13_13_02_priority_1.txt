@@ -25,10 +25,10 @@
 680.01
 732.01
 732.02
-1136.01
-1237.01
-1242.01
-1246.02
-1263.01
-1264.01
-1284.01
+1136.01 # S14 SPOC; Vetting status: Green; TOI Comments: possible multi-planet system
+1237.01 # S14 SPOC; Vetting status: Blue (Kepler-25c); TOI Comments: Kepler-25c
+1242.01 # S14 SPOC; Vetting status: Green; TOI Comments: Possible level one candidate; comments: dV=4.2 sep=4.4" N , no OoT offsets
+1246.02 # S14 SPOC; Vetting status: Red; TOI Comments: Odd-even; centroid offset; comments: dV=5.4 sep=4.5" NE, OoT diagnostics 3.2 sigma
+1263.01 # S14 SPOC; Vetting status: Red; TOI Comments: Shallow transit, possibly stellar variability; comments: ghost=0.69, dT=3.6 sep=2.8" SE, dV=5.5 sep=25" E
+1264.01 # S14 SPOC; Vetting status: Red; TOI Comments: Check nearby star; comments: dT=2.0 sep=1.9" SE, DV looks good
+1284.01 # S15 SPOC; Vetting status: Red; TOI Comments: Potential L1 candidate, check 267561450

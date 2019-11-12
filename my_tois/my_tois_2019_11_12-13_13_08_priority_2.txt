@@ -15,10 +15,10 @@
 634.01
 663.02
 782.01
-1135.01
-1235.01
-1239.01
-1253.01
-1272.01
-1278.01
-1285.01
+1135.01 # S14 SPOC; Vetting status: Green
+1235.01 # S14 SPOC; Vetting status: Green; TOI Comments: Potential level 1 candidate
+1239.01 # S14 SPOC; Vetting status: Green; TOI Comments: Small planet candidate
+1253.01 # S14 SPOC; Vetting status: Red; TOI Comments: Two stars in pixel, likely BEB
+1272.01 # S15 SPOC; Vetting status: Green; comments: dV=1.9 sep=62" NE
+1278.01 # S15 SPOC; Vetting status: Red; TOI Comments: v-shaped
+1285.01 # S15 SPOC; Vetting status: Red; TOI Comments: centroid offset but not on other star, need SG1

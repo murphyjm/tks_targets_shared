@@ -7,13 +7,13 @@
 669.01
 736.01
 736.02
-1194.01
+1194.01 # S14 SPOC; Vetting status: Green; TOI Comments: Possible EB; comments: dV=3.7 sep=20" W
 1201.01
-1234.01
-1241.01
-1244.01
-1252.01
-1258.01
-1268.01
-1275.01
-1289.01
+1234.01 # S14 SPOC; Vetting status: Red; TOI Comments: Period may be at another multiple
+1241.01 # S14 SPOC; Vetting status: Red; TOI Comments: KOI 5.01
+1244.01 # S14 SPOC; Vetting status: Green; TOI Comments: Potentially a level one candidate; comments: dV=4 sep=42" S
+1252.01 # S14 SPOC; Vetting status: Red; TOI Comments: V-shaped
+1258.01 # S14 SPOC; Vetting status: Green; TOI Comments: Small planet candidate; comments: dV=4.5 sep=17" NE
+1268.01 # S15 SPOC; Vetting status: Green
+1275.01 # S15 SPOC; Vetting status: Red; TOI Comments: Possible single transit (first event); comments: OoT=5.2sig
+1289.01 # S14 SPOC; Vetting status: Red; TOI Comments: short period, possible stellar variability, possible centroid offset
