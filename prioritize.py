@@ -10,14 +10,10 @@ from utils import *
 from binning import bin
 import numpy as np
 
-def main():
+def handle_args():
     """
-    TKS prioritization code.
-
-    Example command line call:
-        python prioritize.py toi+-2019-10-29.csv exofop_search2019-10-29_combined.csv --toi_col_dict toi_col_dict_foo.json
+    Take in and parse arguments from the command line.
     """
-    # Handle the command line input
     parser = argparse.ArgumentParser(description = "Prioritize TKS targets for atmospheric follow-up.")
     parser.add_argument("toi_fname", metavar="TOI List filename", type=str,
                         help="Fileneame for the toi list .csv file. Should be stored in path data/toi/")
@@ -28,7 +24,21 @@ def main():
     timestr = time.strftime("%Y_%m_%d-%H_%M_%S")
     parser.add_argument("--output_fname", default=os.path.join("my_tois", 'my_tois_{}.txt'.format(timestr)),
                         help="Output (.txt) filename where toi list is stored.")
-    args = parser.parse_args()
+    parser.add_argument("--use_TSM_natalie", default=False,
+                        help="See utils.py, Natalie calculates the equilibrium temperature of the planet (needed to calculate the TSM) \
+                        slightly differently (using the planet's insolation flux) but it's slightly easier to calculate the TSM as they \
+                        do in Kempton et al. 2018.")
+    return parser.parse_args()
+
+def main():
+    """
+    TKS prioritization code.
+
+    Example command line call:
+        python prioritize.py toi+-2019-10-29.csv exofop_search2019-10-29_combined.csv --toi_col_dict toi_col_dict_foo.json
+    """
+    # Handle the command line input
+    args = handle_args()
 
     toi_fname = os.path.join("data/toi", args.toi_fname)
     exo_fname = os.path.join("data/exofop", args.exofop_fname)
@@ -64,12 +74,21 @@ def main():
     planet_df = planet_df.reset_index(drop = True)
 
     # Calculate TSM values
-    planet_df["TSM"] = calculate_TSM(planet_df[toi_col_dict["rp_key"]],
-                                     planet_df[toi_col_dict["rs_key"]],
-                                     planet_df[toi_col_dict["Ts_key"]],
-                                     planet_df[toi_col_dict["Jmag_key"]],
-                                     planet_df[toi_col_dict["mp_key"]],
-                                     planet_df[toi_col_dict["Fp_key"]])
+    if args.use_TSM_natalie:
+        planet_df["TSM"] = calculate_TSM_natalie(planet_df[toi_col_dict["rp_key"]],
+                                         planet_df[toi_col_dict["rs_key"]],
+                                         planet_df[toi_col_dict["Ts_key"]],
+                                         planet_df[toi_col_dict["Jmag_key"]],
+                                         planet_df[toi_col_dict["mp_key"]],
+                                         planet_df[toi_col_dict["Fp_key"]])
+    else:
+        planet_df["TSM"] = calculate_TSM(planet_df[toi_col_dict["rp_key"]],
+                                         planet_df[toi_col_dict["rs_key"]],
+                                         planet_df[toi_col_dict["Ts_key"]],
+                                         planet_df[toi_col_dict["Jmag_key"]],
+                                         planet_df[toi_col_dict["mp_key"]],
+                                         planet_df[toi_col_dict["ar_key"]])
+
 
     ##### Copied from Nicholas' notebook #####
     ##########################################

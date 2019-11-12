@@ -4,7 +4,6 @@ import json
 # Analysis
 import numpy as np
 import pandas as pd
-import astropy as ap
 from astropy import constants as const
 
 def load_and_merge(toi_fname, exo_fname):
@@ -68,7 +67,33 @@ def k_amp(P, m_planet, m_star):
     me_mj = const.M_earth / const.M_jup
     return 203 * (P ** (-1/3)) * m_planet * me_mj / ((m_star + (9.548e-4 * m_planet * me_mj)) ** (2/3))
 
-def calculate_TSM(r_planet, r_star, teff_star, Jmag, m_planet, insol_flux):
+def calculate_TSM(r_planet, r_star, teff_star, Jmag, m_planet, ar_ratio):
+    """
+    Calculate TSM, a S/N proxy for JWST atmospheric transmission spectra,
+        from Kepmton et al. 2018 (https://arxiv.org/pdf/1805.03671.pdf).
+    Args:
+        r_planet (ndarray): Planet radii (units of Earth radius)
+        r_star (ndarray): Stellar radii (units of solar radius)
+        teff_star (ndarray): Stellar effective temperature (Kelvin)
+        Jmag (ndarray): J-band stellar magnitude (mag)
+        m_planet (ndarray): Planet mass (units of Earth mass)
+        ar_ratio (ndarray): Orbital semi-major axis and stellar radius ratio.
+    Returns:
+        ndarray: TSM value for each entry (see Kempton et al. 2018 equation 1)
+    """
+    # Table 1 in Kempton et al.
+    scale_factors = np.array([0.19 if r < 1.5 \
+                             else 1.26 if np.logical_and(r >= 1.5, r < 2.75) \
+                             else 1.28 if np.logical_and(r >= 2.75, r < 4) \
+                             else 1.15 \
+                             for r in r_planet])
+
+    T_eq = teff_star * (np.sqrt(1 / ar_ratio) * (0.25**0.25)) # Equation 3 in Kempton et al. 2018
+
+    # Equation 1 in Kempton et al. 2018
+    return scale_factors * (r_planet**3) * T_eq * (10**(-Jmag/5)) / (m_planet * (r_star**2))
+
+def calculate_TSM_natalie(r_planet, r_star, teff_star, Jmag, m_planet, insol_flux):
     """
     Calculate TSM, a S/N proxy for JWST atmospheric transmission spectra,
         from Kepmton et al. 2018 (https://arxiv.org/pdf/1805.03671.pdf).
