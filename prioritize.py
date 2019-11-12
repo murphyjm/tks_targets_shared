@@ -99,7 +99,7 @@ def main():
     all_bins = [rad_bins, fpl_bins, tef_bins]
     id_key   = "Full TOI ID"
     binned   = bin(toi_col_dict, planet_df, all_bins, id_key, "TSM")
-    priority = args.priority
+    priority = int(args.priority)
     my_tois  = binned[binned["priority"]==priority].reset_index(drop=True).sort_values(id_key)[id_key].values
     ##########################################
     ##########################################
