@@ -29,7 +29,7 @@ def main():
     parser.add_argument("--output_fname", default=os.path.join("my_tois", 'my_tois_{}.txt'.format(timestr)),
                         help="Output (.txt) filename where toi list is stored.")
     args = parser.parse_args()
-
+    
     toi_fname = os.path.join("data/toi", args.toi_fname)
     exo_fname = os.path.join("data/exofop", args.exofop_fname)
     planet_df = load_and_merge(toi_fname, exo_fname)
@@ -83,6 +83,7 @@ def main():
     my_tois  = binned[binned["priority"]==priority].reset_index(drop=True).sort_values(id_key)[id_key].values
     ##########################################
     ##########################################
+
     print("Priority {} targets: \n{}".format(priority, my_tois))
     np.savetxt(args.output_fname, my_tois, fmt='%.2f')
     print("Binning sucessful, output stored in {}".format(args.output_fname))
