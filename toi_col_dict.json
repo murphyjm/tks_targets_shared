@@ -9,6 +9,6 @@
   "rs_key":"Star Radius Value",
   "dec_key":"TIC Declination",
   "Fp_key":"Effective Stellar Flux Value",
-  "mp_key":"m_planet",
+  "mp_key":"pl_masses",
   "mp_units":"Earth"
 }

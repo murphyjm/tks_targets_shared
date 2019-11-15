@@ -12,9 +12,9 @@ def load_and_merge(toi_fname, exo_fname):
     """
     toi_df = pd.read_csv(toi_fname, comment='#')
     exo_df = pd.read_csv(exo_fname)
-
-    # Merge the two, but don't drop rows in the toi_df if there's no exofop data
-    return toi_df.merge(exo_df, left_on='TIC', right_on='Target', how='left').reset_index(drop=True)
+    
+    # Merge the two, if there's no exofop data we have to get rid of the row
+    return toi_df.merge(exo_df, left_on='TIC', right_on='Target').reset_index(drop=True)
 
 def load_toi_col_names(toi_col_dict_fname):
     """

@@ -19,8 +19,10 @@ def handle_args():
                         help="Fileneame for the toi list .csv file. Should be stored in path data/toi/")
     parser.add_argument("exofop_fname", metavar="Exofop fileneame", type=str,
                         help="Filename for the exofop .csv file. Should be stored in the path data/exofop/")
+    parser.add_argument("--priority", metavar="Taret priority level", default=1, help="Priority level of targets to return.")
     parser.add_argument("--toi_col_dict", default='toi_col_dict.json',
-                        help="The .json file with a dict to convert between standard column names and the (sometimes changing TOI column names).")
+                        help="The .json file with a dict to convert between standard column names and the \
+                        (sometimes changing TOI column names).")
     timestr = time.strftime("%Y_%m_%d-%H_%M_%S")
     parser.add_argument("--output_fname", default=os.path.join("my_tois", 'my_tois_{}'.format(timestr)),
                         help="Output (.txt) filename where toi list is stored.")
@@ -28,7 +30,6 @@ def handle_args():
                         help="See utils.py, Natalie calculates the equilibrium temperature of the planet (needed to calculate the TSM) \
                         slightly differently (using the planet's insolation flux) but it's slightly easier to calculate the TSM as they \
                         do in Kempton et al. 2018.")
-    parser.add_argument("--priority", default=1, help="Priority level of targets to return.")
     return parser.parse_args()
 
 def main():
@@ -36,7 +37,7 @@ def main():
     TKS prioritization code.
 
     Example command line call:
-        python prioritize.py toi+-2019-10-29.csv exofop_search2019-10-29_combined.csv
+        python prioritize.py toi+-2019-11-14.csv exofop_search_2019-11-14_combined.csv
     """
     # Handle the command line input
     args = handle_args()
@@ -47,11 +48,15 @@ def main():
     toi_col_dict = load_toi_col_names(args.toi_col_dict)
 
     # Clean up the resulting df a little bit
+    planet_df = planet_df.drop(columns=['TFOP SG1a','TFOP SG1b','TFOP SG2',
+                                        'TFOP SG3','TFOP SG4','TFOP SG5','TFOP Master',
+                                        'TOI Disposition'])
     planet_df = planet_df.drop_duplicates(subset="Full TOI ID").sort_values("Full TOI ID")
     # Add a column for stellar mass calculated from surface gravity
     # N.B. the Exofop data contains stellar mass, but for rows that are not matched
     # with Exofop data, give them a stellar mass.
-    planet_df[toi_col_dict["ms_key"]] = (10**planet_df["Surface Gravity Value"] * (planet_df[toi_col_dict["rs_key"]] * const.R_sun) / const.G) / const.M_sun
+    planet_df[toi_col_dict["ms_key"]] = (10**planet_df["Surface Gravity Value"] * (planet_df[toi_col_dict["rs_key"]] * const.R_sun)\
+                                                                                / const.G) / const.M_sun
 
     # Remove rows from the df that don't meet these three criteria
     planet_df = planet_df[np.logical_and.reduce((planet_df[toi_col_dict["rp_key"]] > 0,
@@ -73,7 +78,7 @@ def main():
     desirable_inds = np.logical_and(planet_df[toi_col_dict["dec_key"]] > -20, planet_df['K_amp'] > 2)
     planet_df = planet_df[desirable_inds]
     planet_df = planet_df.reset_index(drop = True)
-
+    
     # Calculate TSM values
     if args.use_TSM_natalie:
         planet_df["TSM"] = calculate_TSM_natalie(planet_df[toi_col_dict["rp_key"]],
