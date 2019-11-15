@@ -1,3 +1,4 @@
+# *** = not yet vetted
 233.01
 266.01
 390.01
@@ -24,14 +25,14 @@
 1268.01
 1278.01
 1285.01
-1339.01
-1410.01
-1411.01
-1415.01
-1416.01
-1424.01
-1430.01
-1434.01
-1436.01
-1442.01
-1443.01
+1339.01 # S16 SPOC; Vetting status: Green; TOI Comments: possible multi; some transits fell in gaps; comments: dT=6.5 sep=11" W
+1410.01 # S16 SPOC; Vetting status: Green; TOI Comments: ; comments:
+1411.01 # S16 SPOC; Vetting status: Green; TOI Comments: ; comments:
+1415.01 # S16 SPOC; Vetting status: Green; TOI Comments: ; comments:
+1416.01 # S16 SPOC; Vetting status: Green; TOI Comments: ; comments:
+1424.01 # S16 SPOC; Vetting status: Red; TOI Comments: ; comments:
+1430.01 # No entry in S16 SPOC or QLP?
+1434.01 # No entry in S16 SPOC or QLP?
+1436.01 # S16 SPOC; Vetting status: ***; TOI Comments: ***; comments: ***
+1442.01 # S16 SPOC; Vetting status: ***; TOI Comments: ***; comments: ***
+1443.01 # S16 SPOC; Vetting status: ***; TOI Comments: ***; comments: ***
