@@ -26,13 +26,13 @@
 1278.01
 1285.01
 1339.01 # S16 SPOC; Vetting status: Green; TOI Comments: possible multi; some transits fell in gaps; comments: dT=6.5 sep=11" W
-1410.01 # S16 SPOC; Vetting status: Green; TOI Comments: ; comments:
-1411.01 # S16 SPOC; Vetting status: Green; TOI Comments: ; comments:
-1415.01 # S16 SPOC; Vetting status: Green; TOI Comments: ; comments:
-1416.01 # S16 SPOC; Vetting status: Green; TOI Comments: ; comments:
-1424.01 # S16 SPOC; Vetting status: Red; TOI Comments: ; comments:
+1410.01 # S16 SPOC; Vetting status: Green; TOI Comments: potential L1; comments: dV=5.0 sep=12 SE", dV=2 sep=31" E
+1411.01 # S16 SPOC; Vetting status: Green; TOI Comments: potential L1 candidate, centroid offset; comments: OoT=4.29sig
+1415.01 # S16 SPOC; Vetting status: Green; TOI Comments: ; comments: dV=8.1 sep=21" SW
+1416.01 # S16 SPOC; Vetting status: Green; TOI Comments: potential L1 candidate; comments: dT=1.7 sep=5" E
+1424.01 # S16 SPOC; Vetting status: Red;   TOI Comments: Check nearby stars, potential L1 candidate; comments: V shaped, dV=3.9 sep=6" SSW, dV=8 sep=4" SE
 1430.01 # No entry in S16 SPOC or QLP?
 1434.01 # No entry in S16 SPOC or QLP?
-1436.01 # S16 SPOC; Vetting status: ***; TOI Comments: ***; comments: ***
-1442.01 # S16 SPOC; Vetting status: ***; TOI Comments: ***; comments: ***
-1443.01 # S16 SPOC; Vetting status: ***; TOI Comments: ***; comments: ***
+1436.01 # S16 SPOC; Vetting status: *****; TOI Comments: ***; comments: ***
+1442.01 # S16 SPOC; Vetting status: *****; TOI Comments: ***; comments: ***
+1443.01 # S16 SPOC; Vetting status: *****; TOI Comments: ***; comments: ***

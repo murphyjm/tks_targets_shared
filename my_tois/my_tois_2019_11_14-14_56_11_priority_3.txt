@@ -15,9 +15,9 @@
 1274.01
 1288.01
 1289.01
-1347.01 # S16 QLP; Vetting status: Red; TOI Comments: ; comments:
-1413.01 # S16 SPOC; Vetting status: Red; TOI Comments: ; comments:
+1347.01 # S16 QLP;  Vetting status: Red;   TOI Comments: ; comments:
+1413.01 # S16 SPOC; Vetting status: Red;   TOI Comments: ; comments:
 1419.01 # S16 SPOC; Vetting status: Blue (Hat-P-3); TOI Comments: ; comments:
-1444.01 # S16 SPOC; Vetting status: ***; TOI Comments: ***; comments: ***
-1449.01 # S16 SPOC; Vetting status: ***; TOI Comments: ***; comments: ***
-1449.02 # S16 SPOC; Vetting status: ***; TOI Comments: ***; comments: ***
+1444.01 # S16 SPOC; Vetting status: *****; TOI Comments: ***; comments: ***
+1449.01 # S16 SPOC; Vetting status: *****; TOI Comments: ***; comments: ***
+1449.02 # S16 SPOC; Vetting status: *****; TOI Comments: ***; comments: ***

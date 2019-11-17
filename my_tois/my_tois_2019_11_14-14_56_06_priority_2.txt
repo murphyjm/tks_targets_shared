@@ -24,9 +24,9 @@
 1258.01
 1276.01
 1284.01
-1339.02 # S16 SPOC; Vetting status: Green; TOI Comments: ; comments:
-1412.01 # S16 SPOC; Vetting status: Red; TOI Comments: ; comments:
-1423.01 # S16 SPOC; Vetting status: Red; TOI Comments: ; comments:
+1339.02 # S16 SPOC; Vetting status: Green; TOI Comments: part of possible multi-planet system; some transits fell in gaps; comments: dT=6.5 sep=11" W
+1412.01 # S16 SPOC; Vetting status: Red;   TOI Comments: ; comments:
+1423.01 # S16 SPOC; Vetting status: Red;   TOI Comments: ; comments:
 1435.01 # No entry in S16 SPOC or QLP?
-1437.01 # S16 SPOC; Vetting status: ***; TOI Comments: ***; comments: ***
-1448.01 # S16 SPOC; Vetting status: ***; TOI Comments: ***; comments: ***
+1437.01 # S16 SPOC; Vetting status: *****; TOI Comments: ***; comments: ***
+1448.01 # S16 SPOC; Vetting status: *****; TOI Comments: ***; comments: ***
