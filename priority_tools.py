@@ -105,7 +105,7 @@ def k_amp_finder(star_mass,star_radius,planet_mass,ars,mp_units='Earth'):
     v_pl = v_star * ((planet_mass*mp_factor)/(star_mass*Msun))
     return v_pl
 
-def clean_tess_data(toi_plus_list, tic_star_info):
+def clean_tess_data(toi_plus_list, tic_star_info,include_qlp=False):
     '''
     Performs cleaning on the toi+ list (available at tev.mit.edu) combined with 
     the TIC star info, available at https://exofop.ipac.caltech.edu/tess/search.php.
@@ -137,9 +137,13 @@ def clean_tess_data(toi_plus_list, tic_star_info):
     c = c2.sort_values('Full TOI ID')
     c['TSM'] = get_TSM(c[rp_key],c[rs_key],c[Ts_key],c[Jmag_key],c[mp_key],c[ars_key])
 
-    #get rid of anything with unknown radius or period values
-    c = c[np.logical_and.reduce((c[rp_key]>0, c[pp_key]>0,
-        c['Source Pipeline']=='spoc'))]
+    #get rid of anything with unknown radius or period values, 
+    #and optionally throw QLP planets back in
+    if include_qlp == False:
+        c = c[np.logical_and.reduce((c[rp_key]>0, c[pp_key]>0,
+            c['Source Pipeline']=='spoc'))]
+    elif include_qlp == True:
+        c = c[np.logical_and(c[rp_key]>0, c[pp_key]>0)]        
     c = c.drop_duplicates(subset=id_key).reset_index(drop=True)
     
     #get observational desirables. Note that there are no mag cuts made

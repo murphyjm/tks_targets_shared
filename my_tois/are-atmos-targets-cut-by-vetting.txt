@@ -1,0 +1,46 @@
+only looking at the post S14, since those 
+are the ones we have the clean reports for
+
+TOI		VETTING STATUS		WHY
+ 1135.01,	good			x
+ 1136.02,	good			x
+ 1144.01,	kp			x
+ 1173.01,	good			x
+ 1179.01,	good			x
+ 1201.01,	??			no vetting information available
+ 1238.02,	good			x
+ 1242.01,	good			x
+ 1243.01,	bad			vmag 13.4
+ 1254.01,	good			x
+ 1256.01,	bad			vmag 17.2
+ 1260.01,	good			x
+ 1273.01,	bad			high impact parameter, brighter star nearby
+ 1276.01,	bad			vmag 15.4
+ 1278.01,	bad			vmag 13.5
+ 1283.01,	kp			x
+ 1285.01,	bad			vmag 13.2
+ 1288.01,	good			x
+ 1289.01,	bad			vmag 15.7
+ 1339.01,	good			x
+ 1410.01,	good			x
+ 1412.01,	bad			RUWE 2.3
+ 1413.01,	bad			RUWE 2.5
+ 1416.01,	good			x
+ 1419.01,	kp			x
+ 1423.01,	bad			v-shaped, OOT and odd-even both ~2.5sig
+ 1430.01,	good			x
+ 1436.01,	good			x
+ 1442.01,	bad			vmag 15.4
+ 1448.01,	bad			vmag 15.7
+ 1449.01,	bad			high impact, medium SNR (8.6), crowded field
+ 1459.01,	bad			low SNR (7.6), high offsets + halo statistic
+ 1470.01,	bad			vmag 13.5
+ 1471.01,	good			x
+ 1473.01,	good			x
+ 1474.01,	bad			vmag 16.5
+ 1598.01,	bad			4 sigma distance offset
+ 1632.01,	bad			vmag 15.9
+ 1634.01,	bad			vmag 13.2
+ 1638.01,	bad			vmag 13.9
+ 1639.01,	bad			vmag 14.4
+ 1640.01	bad			vmag 13.3
