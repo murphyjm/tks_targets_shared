@@ -252,6 +252,7 @@ def bin_plotter(binned_data, bins, rbin):
     Inputs are the dataframe itself and the radius bin
     (1, 2, 3, 4, or 5) of interest.
     '''
+
     aois = binned_data[binned_data['priority']!=0]
     rbin1 = aois.loc[rbin,:,:]
 
@@ -291,6 +292,16 @@ def bin_plotter(binned_data, bins, rbin):
     for i in np.arange(len(rbin1)):
         ax.semilogx(F[i], Ts[i], '.',ms=rp[i]*5,color=colorfinder(P[i]))
         ax.annotate(txt[i], (F[i], Ts[i]+rp[i]*9))
+
+    ##added for TKS in person
+    for f in np.arange(1,6,1):
+        for t in np.arange(1,4,1):
+            try:
+                size = len(binned_data.loc[rbin,f,t])
+                ax.annotate('   ' + str(size),(fpl_bins[f-1],tef_bins[t-1]+1100))
+            except KeyError:
+                continue
+
     ax.set_yticks(tef_bins)
     ax.set_xticks(fpl_bins)
     ax.set_ylabel('Stellar Effective Temperature (K)')

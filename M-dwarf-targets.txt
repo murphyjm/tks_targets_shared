@@ -1,3 +1,0 @@
-TOI 1448.01 (V 15.7, 3391K, temperature mini-Neptune)
-TOI 1243.01 (V 13.4, 3489K, 500k ~2.5Re planet)
-TOI 1634.01 (V 13.2, 3455K. 850k 1.8Re - if C&K '17 holds, clear??) - worth		asking the team, probably a no though

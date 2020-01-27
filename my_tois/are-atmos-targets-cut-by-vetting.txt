@@ -15,7 +15,8 @@ TOI		VETTING STATUS		WHY
  1256.01,	bad			vmag 17.2
  1260.01,	good			x
  1273.01,	bad			high impact parameter, brighter star nearby
- 1276.01,	bad			vmag 15.4
+					UPDATE: check SG1/SG2 for more info 
+1276.01,	bad			vmag 15.4
  1278.01,	bad			vmag 13.5
  1283.01,	kp			x
  1285.01,	bad			vmag 13.2
@@ -39,6 +40,7 @@ TOI		VETTING STATUS		WHY
  1473.01,	good			x
  1474.01,	bad			vmag 16.5
  1598.01,	bad			4 sigma distance offset
+					UPDATE: look at FOP data when it's released
  1632.01,	bad			vmag 15.9
  1634.01,	bad			vmag 13.2
  1638.01,	bad			vmag 13.9

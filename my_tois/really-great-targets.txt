@@ -1,0 +1,36 @@
+#these targets are really good compared to the MEDIAN TSM in
+their bin, and with respect to Vmag. Basically, they keep 
+popping up no matter how you slice the data
+
+421.01 (pretty good, and we're abt ready to
+	publish it anyway as I recall)
+469.01 (although this is in the same group as 
+	509 and 1339, so maybe we don't care)
+509.01 (warm Neptune and weird possible companion)
+560.01 (warm Neptune, cooler star)
+561.01/.02 (has a great USP target plus a 
+	10 day sub-Neptune (3.8Re) companion 
+	which is worse than 509,469,1339.01,
+	and HD3167, but it's the next one down)
+	Although, would the USP have an atmos??
+635.01 (if it has an atmosphere - USP, 1.5Re,
+	0.5 day (!!) orbit)
+656.01 (big, near-Jovian around 4400K star. Great
+	target but dim in V. OH LMAO THIS IS 
+	JUST WASP-43b)
+*732.01 (low V ~ 13.1, but GREAT 1.1Re in 0.7d orbit,
+	and really good 1.8Re in 12 day orbit. 
+	.01 is MUCH brighter in V than 736.01 and 1276.01, 
+	nominally the P2 and P3 in its bin. TOI270c
+	is P1 and is too far south)
+1283.01 (warm-ish Jupiter; 700K, 5300K star.
+	V ~ 10. Extremely strong target relative
+	to others in parameter space. WASP-107b is
+	better but star is 4400K.)
+1339.01 (also, has a pretty good companion, 
+	1339.02, in the same bin - neat!)
+1412.01 (big, warm saturn, low V ~ 12.3)
+
+
+*732 is almost certainly too dim to get a good mass
+	with HIRES. 
