@@ -115,10 +115,11 @@ def clean_tess_data(toi_plus_list, tic_star_info,include_qlp=False):
     the data/exofop directory should contain these data.
     '''
     
+    #give the toi plus list a shorter name that's easier to type (c is for catalog)
     c = toi_plus_list
     
     #read in the TIC info, which has magnitude data that's missing from the TOI+ list
-    star_info = pd.read_csv('data/exofop/TIC_star_info_jan_15_all.csv',delimiter=',',header=10)
+    star_info = tic_star_info
 
     #generate star mass from logg because that's easier to look at
     c['Stellar Mass'] = ((10**c['Surface Gravity Value']) * ((c['Star Radius Value']\
