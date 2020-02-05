@@ -1,0 +1,29 @@
+rp_key	 :	planet radius (from Toi+ list or Exoplanet Archive)
+ms_key 	 :	stellar mass (from logg in Toi+ or E.A.)
+pp_key	 :	planet period (from Toi+ list or E.A.)
+Ts_key 	 :	stellar effective temperature (  "   )
+ars_key	 :	orbital distance (a) over stellar radius. 
+			calculated from period, star radius, 
+			and star mass. Convenient quantity
+			to have for calculating TSM / Teq
+Jmag_key :	J magnitude. From E.A. or TIC candidate 
+			starlist (https://exofop.ipac.caltech.edu/tess/search.php)
+Vmag_key :	V magnitude. same source as J.
+rs_key	 :	stellar radius. 
+dec_key	 : 	declination
+Fp_key	 :	insolation flux relative to Earth. from TOI+
+			or calculated for known planets
+mp_key	 :	planet mass. from E.A. or calculated based on
+			basic M-R relationship (Louie et. al. 2018
+			based on Chen & Kipping 2017) for TOIs
+mp_units :	all masses in Earth units; built this in so the 
+			code will be more versatile in the future, 
+			although note that most functions do not 
+			have any unit-functionality 
+id_key	 :	the name of the planet. For TOIs, this is a float 
+			corresponding to their TOI number (e.g. 1143.01)
+			for known planets, this is a string. The planet
+			letter is always given with a space after the
+			name (i.e., HD 209458 b), which is not a
+			universal convention but is the one used by
+			Exoplanet Archive. 	

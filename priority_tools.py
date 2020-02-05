@@ -135,7 +135,7 @@ def clean_tess_data(toi_plus_list, tic_star_info,include_qlp=False):
     c2 = catalog_2.drop(columns=['TFOP SG1a','TFOP SG1b','TFOP SG2',\
                                 'TFOP SG3','TFOP SG4','TFOP SG5','TFOP Master',\
                                 'TOI Disposition'])
-    c = c2.sort_values('Full TOI ID')
+    c = c2
     c['TSM'] = get_TSM(c[rp_key],c[rs_key],c[Ts_key],c[Jmag_key],c[mp_key],c[ars_key])
 
     #get rid of anything with unknown radius or period values, 
@@ -148,9 +148,26 @@ def clean_tess_data(toi_plus_list, tic_star_info,include_qlp=False):
     c = c.drop_duplicates(subset=id_key).reset_index(drop=True)
     
     #get observational desirables. Note that there are no mag cuts made
-    desirables = np.logical_and(c[dec_key]>-20, c['K_amp']>2)
+    #I exempt a few planets from the Kamp cut because they're bright
+    #enough that we've been observing them anyway!
+    desirables = np.logical_and(
+            c[dec_key]>-20, 
+            np.logical_or(c['K_amp']>2, c[id_key]==554.01)
+            )
     catalog_cleaned = c[desirables]#.drop_duplicates(subset='TOI')
     cc = catalog_cleaned.reset_index(drop=True)
+
+    #remove known FPs or repeats. excluded_tois.txt explains
+    #why these tois have been dropped
+    cc = cc[np.logical_and.reduce((
+        cc[id_key] != 468.01,
+        cc[id_key] != 634.01, 
+        cc[id_key] != 635.01, 
+        cc[id_key] != 656.01,
+        cc[id_key] != 1144.01, 
+        cc[id_key] != 1419.01
+        ))]
+
     return cc
 
 def binning_function(dataset,bins,id_key='Full TOI ID',sort_val='TSM'):
@@ -247,14 +264,63 @@ def binning_function(dataset,bins,id_key='Full TOI ID',sort_val='TSM'):
 
     return binned
 
+def return_known_spectra():
+    '''
+    returns planets under 11.2Re with known transmission
+    spectra. the index of the planet in kp_w_spectra 
+    corresponds to the index in has_features, which 
+    identifies whether any absorption features have
+    been positively identified. For some cases, especially
+    TESS planets like pi Men c, lack of any known features
+    does NOT indicate that the planet is cloudy. 
+    '''
+    kp_w_spectra = ['WASP-107 b', 'GJ 1214 b', 'WASP-80 b', 
+               'GJ 3470 b',   'HAT-P-11 b','HAT-P-12 b', 
+               '55 Cnc e',    'HAT-P-18 b','WASP-166 b',
+               'HAT-P-26 b',  'pi Men c',  'WASP-29 b', 
+               'HD 149026 b', 'K2-25 b',   'HD 97658 b', 
+               'HD 3167 b',   'GJ 436 b',  'K2-18 b']
+
+    has_features = [1,             0,           0, 
+                   1,              1,           0,
+                   1,              0,           0,
+                   1,              0,           0, 
+                   0,              0,           0,
+                   0,              0,           1]
+
+    return (kp_w_spectra, has_features)
+
+def has_obs(data, kpwks):
+    '''
+    using the list of known spectra (above), adds a 
+    dataframe column (1 or 0) describing whether a 
+    planet has spectra observations
+    '''
+    kp_w_spectra,_ = return_known_spectra()
+    ho = np.zeros(len(data[id_key]))
+    names = np.array(data[id_key])
+    for i in np.arange(len(ho)):
+        if names[i] in kp_w_spectra:
+            ho[i] = 1
+    return ho
+
 def bin_plotter(binned_data, bins, rbin):
     '''
     Function for visualization of the binned data. 
     Inputs are the dataframe itself and the radius bin
     (1, 2, 3, 4, or 5) of interest.
     '''
-
-    aois = binned_data[binned_data['priority']!=0]
+    #do a little bit of data cleaning; NOTE should 
+    #ultimately move this outside of the function
+    kpwks, hf = return_known_spectra()
+    data_copy = binned_data.copy()
+    data_copy['has_spectrum'] = has_obs(data_copy, kpwks)
+    
+    #we only want data products which have high atmospheric 
+    #priority or already have observations
+    aois = data_copy[np.logical_or(
+        data_copy['priority']!=0, data_copy['has_spectrum']==1
+        )]
     rbin1 = aois.loc[rbin,:,:]
 
     #get the bin edges
@@ -265,34 +331,52 @@ def bin_plotter(binned_data, bins, rbin):
     Ts = np.array(rbin1[Ts_key])
     rp = np.array(rbin1[rp_key])
     P = np.array(rbin1['priority'])
+    N = np.array(rbin1[id_key])
     #okay, so I think one useful method would be to try to print these and use the
     #annotate function
     #(https://stackoverflow.com/questions/14432557/matplotlib-scatter-plot-
     #with-different-text-at-each-data-point) and see how that works
     #(i.e. whether it's legible)
     
-    def colorfinder(priority):
-        if priority == 1:
-            return 'green'
-        if priority == 2:
-            return 'yellow'
-        if priority == 3:
-            return 'orange'
+    def colorfinder(name, priority):
+        if name in kpwks:
+            idx = kpwks.index(name)
+            if hf[idx]:
+                return 'red'
+            elif not hf[idx]:
+                return 'dimgrey'
+        else:
+            if priority == 1:
+                return 'green'
+            if priority == 2:
+                return 'yellow'
+            if priority == 3:
+                return 'orange'
     
+    def textcolorfinder(name):
+        if name in kpwks:
+            idx = kpwks.index(name)
+            if hf[idx]:
+                return 'red'
+            elif not hf[idx]:
+                return 'dimgrey'
+        else:
+            return 'black'
+
     fig, ax = plt.subplots(figsize=(14,9))
     figsize=[10,7]
     ax.grid()
     txt = np.array(rbin1[id_key])
     
     #doing the title stuff
-    bin_edges = np.round(10**(np.linspace(0,1,6)),1)
+    bin_edges = np.round(bins[0],1)
     title_txt = r'Planets & Planet Candidates With Radius Between ' + str(bin_edges[rbin-1]) + r' and ' + \
         str(bin_edges[rbin]) + r'$R_\oplus$'
 
 
     for i in np.arange(len(rbin1)):
-        ax.semilogx(F[i], Ts[i], '.',ms=rp[i]*5,color=colorfinder(P[i]))
-        ax.annotate(txt[i], (F[i], Ts[i]+rp[i]*9))
+        ax.semilogx(F[i], Ts[i], '.',ms=rp[i]*5,color=colorfinder(N[i],P[i]))
+        ax.annotate(txt[i], (F[i], Ts[i]+rp[i]*9),color=textcolorfinder(N[i]))
 
     ##added for TKS in person
     for f in np.arange(1,6,1):
