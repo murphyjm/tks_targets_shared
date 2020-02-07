@@ -1,0 +1,89 @@
+TARGETS THAT ARE IN SC3 AND HAVE SOME MASS MEASUREMENTS
+-TOI 561.02	35 Keck obs (3 planet system). The P1 planet is
+		1.5Re in a 0.4 day orbit (4600F_e) so possible
+		it has no atmosphere. It's the only
+		planet in this bin aside from Kepler-1323b. 
+		561 also has two potentially desirable 
+		sub-Neptunes (.01 and .03) that are cooler, 
+		but only okay in their bin [3,3,3]. 
+
+-TOI 554.01	33 Keck obs, 90 APF obs. Very bright (V~6.9)
+aka		Best in its bin (3,4,3) aside from an 	
+HD25463		unconfirmed K2 candidate. Might be a good
+		companion to 1339.01 or 469.01 or 509.01
+		as "fairly highly-irradiated mini-Neptunes
+		around >5500K stars"). Much brighter and
+		higher TSM than other planets in the bin. 
+		This is a late F star it looks like, so
+		probably a similar objection to Ian's 
+		re: 509.01, but would be epic if 
+		we could do it. 
+
+-TOI 455.01	32 Keck obs. Probably outshone by L 98-59, 
+aka		so even though it's a pretty interesting 
+GJ3193		target we're not likely to want to do it.
+		It is brighter in V (10.6 vs 11.7) and in
+		J (7.3 vs 7.9), but not by enough to make
+		a huge difference. Worse still, there's a
+		much higher-TSM PC (1680.01) in the same
+		bin that's also in the northern hemisphere
+		(the only knock on L 98-59), although that
+		one is much dimmer. :( 
+
+-TOI 421.01	27 Keck obs. Apparently shaping up nicely.
+		Technically P4, but exact same TSM as the
+		next target above it (WASP-84) while being
+		~0.8mag brighter in V and J. The top target
+		has a much higher TSM but is also 9.1Re
+		vs 6.4 for this one. K2-24 c is more similar
+		at 7.5Re and has a higher TSM (164 vs 117).
+		I think this would fit ok with a suite of 
+		proposals for "Neptune +/- 2 Re" that 
+		included most of the other planets on this
+		list. 
+
+-TOI 469.01	25 Keck obs. This is in a bin well-populated
+aka		with TOIs (1339.01/.02, 509.01, and 561.01
+HD42813		are all sharing this space, all of which
+		we're getting masses on anyway). But, we've
+		been looking at it anyway, so why throw it
+		away, I guess? This one is notably different
+		from its peers in that its Teff is 6100K, 
+		compared to <5600K for everything else
+		around. RadVel fit still needs some work; 
+		possible outer companion? Noticeable slope
+		on residuals. 
+
+TOI 509.01	23 Keck obs, 61 APF obs. Ah, the notorious 
+aka		"what the heck is going on with those RVs"
+HD63935		system. Well, if we get it, it'll fit in 
+		with "mini-ish-Neptunes around hot stars" 
+		program that kinda seems to be shaping
+		up here. Honestly, might be nice to get
+		another photometric transit of the 22 day
+		signal and see if that's real (although
+		it would be pretty high effort to put that
+		together). 
+
+I think things in SC3 below this are probably too obs-poor
+that we'll have anything by proposal deadline, but I know
+some atmos priority planets are missing from the JUMP 
+program so I'm just going through those that have a ton
+of obs and checking their atmospheric potential. 
+
+TOI 562.01	on JUMP, we got some masses. It's small 
+aka		(1.2Re) and cool (only ~ 500K) with a 
+GJ357		decent TSM. Surely somebody is already
+		on this, but if not, I would be REALLY
+		interested in doing some work with it.
+		P1 in the 1,3,1 bin. 
+
+TOI 431.01	BOTH P1. .02 is a USP of 1.4Re, possibly
+& 431.02	no atmosphere. .01 is a 3.87 day orbit 
+		around an early K star. It was QLP 
+		so previously off our radar, but it's 
+		similar in parameter space to 560.01
+		which we were sad about losing AND
+		it's brighter by about half a mag. We're
+		getting a bunch of Keck obs on it and
+		apparently the RVs are shaping up. 

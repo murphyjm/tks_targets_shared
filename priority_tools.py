@@ -21,7 +21,7 @@ def basic_mr(r):
     m = np.zeros(len(r))
     for i in np.arange(len(r)):
         m[i] = (0.9718 * ((r[i])**3.58)) if r[i] < 1.23 \
-        else (1.436 * ((r[i])**1.7)) if r[i] < 14.26 \
+        else (1.436 * ((r[i])**1.7)) if r[i] < 14.26 and r[i] > 1.23\
         else 317.8
     return m
 
@@ -105,7 +105,8 @@ def k_amp_finder(star_mass,star_radius,planet_mass,ars,mp_units='Earth'):
     v_pl = v_star * ((planet_mass*mp_factor)/(star_mass*Msun))
     return v_pl
 
-def clean_tess_data(toi_plus_list, tic_star_info,include_qlp=False):
+def clean_tess_data(toi_plus_list, tic_star_info, dec_cut=-20, 
+        k_amp_cut = 2, include_qlp=False):
     '''
     Performs cleaning on the toi+ list (available at tev.mit.edu) combined with 
     the TIC star info, available at https://exofop.ipac.caltech.edu/tess/search.php.
@@ -116,7 +117,7 @@ def clean_tess_data(toi_plus_list, tic_star_info,include_qlp=False):
     '''
     
     #give the toi plus list a shorter name that's easier to type (c is for catalog)
-    c = toi_plus_list
+    c = toi_plus_list.copy()
     
     #read in the TIC info, which has magnitude data that's missing from the TOI+ list
     star_info = tic_star_info
@@ -151,9 +152,11 @@ def clean_tess_data(toi_plus_list, tic_star_info,include_qlp=False):
     #I exempt a few planets from the Kamp cut because they're bright
     #enough that we've been observing them anyway!
     desirables = np.logical_and(
-            c[dec_key]>-20, 
-            np.logical_or(c['K_amp']>2, c[id_key]==554.01)
-            )
+            c[dec_key]>dec_cut, 
+            np.logical_or.reduce((
+                c['K_amp']>k_amp_cut, c[id_key]==554.01, 
+                c[id_key]==431.02)
+            ))
     catalog_cleaned = c[desirables]#.drop_duplicates(subset='TOI')
     cc = catalog_cleaned.reset_index(drop=True)
 
@@ -279,14 +282,16 @@ def return_known_spectra():
                '55 Cnc e',    'HAT-P-18 b','WASP-166 b',
                'HAT-P-26 b',  'pi Men c',  'WASP-29 b', 
                'HD 149026 b', 'K2-25 b',   'HD 97658 b', 
-               'HD 3167 b',   'GJ 436 b',  'K2-18 b']
+               'HD 3167 b',   'GJ 436 b',  'K2-18 b', 
+               'HD 106315 c']
 
     has_features = [1,             0,           0, 
                    1,              1,           0,
                    1,              0,           0,
                    1,              0,           0, 
                    0,              0,           0,
-                   0,              0,           1]
+                   0,              0,           1,
+                   0]
 
     return (kp_w_spectra, has_features)
 

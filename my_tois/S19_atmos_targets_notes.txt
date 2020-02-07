@@ -1,0 +1,9 @@
+1680.01 - "flare-like event", not included in TOI+ list
+1681.01 - P3, 2.9Re, 1.5 day orbit, Teff ~5760K. Worse
+	than 1598.01 (TSM is 86 vs 103, V 11 vs 9.1), 
+	probably as good as P2 (K2-100b, with TSM 77
+	and V 10.7)
+1685.01 - P2, very sparsely populated bin (only 3 targets, 
+	all unconfirmed TOIs). TSM < 20 for all so 
+	probably drop. 
+1694.01 - 2.0, hot super-Neptune
