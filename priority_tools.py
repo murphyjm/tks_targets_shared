@@ -313,8 +313,13 @@ def binning_function_X(dataset, bins, id_key='Full TOI ID', sort_val='X'):
             unique_idx.append(element)
 
     binned['priority'] = np.zeros(len(binned))
+
+    #import pdb; pdb.set_trace()
+
     for idx in unique_idx:
 
+        # if idx == (3,3,3):
+        #     pdb.set_trace()
         bin_items = len(binned.loc[idx].sort_values(sort_val,ascending=False).iloc[0:3][id_key])
             #the number of objects in each bin
 
@@ -337,7 +342,8 @@ def binning_function_X(dataset, bins, id_key='Full TOI ID', sort_val='X'):
                     (sort_val,ascending=False).iloc[0:3][id_key].iloc[0],'priority'] = 1
 
         # Note from Nicholas, leftover from function above (but with part about
-        # sorting by Vmag deleted).
+        # sorting by Vmag deleted):
+
         #this is a HIDEOUS call but the idea is:
             #you are going into each bin sequentially (by index), sorting by TSM/t_HIRES
             #then, you are taking out the TOI value of the top entry there
@@ -402,7 +408,6 @@ def exposure_counts(vmag, time, **kwargs):
     f = lambda counts : exposure_time(vmag, counts, **kwargs) - time
     _counts = brentq(f,0,2000,)
     return _counts
-
 ################################################################################
 ############# Two functions above taken from the CPS utils Github ##############
 ################################################################################
