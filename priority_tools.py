@@ -314,12 +314,8 @@ def binning_function_X(dataset, bins, id_key='Full TOI ID', sort_val='X'):
 
     binned['priority'] = np.zeros(len(binned))
 
-    #import pdb; pdb.set_trace()
-
     for idx in unique_idx:
 
-        # if idx == (3,3,3):
-        #     pdb.set_trace()
         bin_items = len(binned.loc[idx].sort_values(sort_val,ascending=False).iloc[0:3][id_key])
             #the number of objects in each bin
 
