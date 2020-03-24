@@ -81,9 +81,25 @@ def get_X_ranked_df(toi_path, tic_path):
 
 def summary_plot(df, benchmark_targets=None, id_key='Full TOI ID', hist_bin_num=10):
     '''
-    Create a summary plot of where the targets in df fall in V magnitude, K-amplitude,
-    planet radius, and priority. Optionally include the IDs of systems that are
-    benchmarks for reference.
+    Create a summary plot of where the ranked targets in df fall in V magnitude,
+    K-amplitude, planet radius, and priority. Optionally include the IDs of systems
+    that are benchmarks for reference.
+
+    Args
+    ----------
+    df (DataFrame): DataFrame like the output of get_X_ranked_df(), containing targets
+        with an associated X metric.
+    benchmark_targets (optional, array_like): Default=None. A list of target id_keys
+        that will be highlighted in the scatter plots as reference points.
+    id_key (optional, str): Default='Full TOI ID'. The column to use to identify
+        the targets in df.
+    hist_bin_num (optional, int): Default=10. The number of histogram to use for
+        the histograms.
+
+    Returns
+    ----------
+    figure: A matplotlib figure containing the summary plot.
+    axes: An array of the figure's subplot axes.
     '''
 
     def plot_benchmark_targets(planet_list):
@@ -158,9 +174,10 @@ def summary_plot(df, benchmark_targets=None, id_key='Full TOI ID', hist_bin_num=
     ax_kamp.set_xscale('log')
     ax_rad.set_xscale('log')
 
-    # Plot housekeeping
+    # Add label to label that plots X metric
     ax_vmag.set_ylabel(r'X [arbitrary units]', fontsize=14)
 
+    # Make axis labels visible for top row
     for ax in axes.flatten():
         ax.xaxis.set_tick_params(which='both', labelbottom=True)
         ax.tick_params(axis='both', labelsize=14)
