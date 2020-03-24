@@ -94,14 +94,14 @@ def summary_plot(df, benchmark_targets=None, id_key='Full TOI ID', hist_bin_num=
                 planet = str(planet)
 
             ax_vmag.plot(curr_row['V mag'].values, curr_row['X'].values, '.', color='red', alpha=0.7)
-            ax_vmag.text(curr_row['V mag'].values[0] + 0.1, curr_row['X'].values[0] * 1.5, planet, fontsize=12)
+            ax_vmag.text(curr_row['V mag'].values[0] + 0.1, curr_row['X'].values[0] * 1.25, planet, fontsize=12)
 
             ax_kamp.plot(curr_row['K_amp'].values, curr_row['X'].values, '.', color='red', alpha=0.7)
-            ax_kamp.text(curr_row['K_amp'].values[0] * 1.05, curr_row['X'].values[0] * 1.5, planet, fontsize=12)
+            ax_kamp.text(curr_row['K_amp'].values[0] * 1.025, curr_row['X'].values[0] * 1.25, planet, fontsize=12)
 
             ax_rad.plot(curr_row['Planet Radius Value'].values, curr_row['X'].values, '.', color='red', alpha=0.7)
-            ax_rad.text(curr_row['Planet Radius Value'].values[0] * 1.025,
-                        curr_row['X'].values[0] * 1.5, planet, fontsize=12)
+            ax_rad.text(curr_row['Planet Radius Value'].values[0] * 1.01,
+                        curr_row['X'].values[0] * 1.25, planet, fontsize=12)
 
     fig, axes = plt.subplots(figsize=(18,10), ncols=3, nrows=2, sharey='row', sharex='col')
     ax_vmag, ax_kamp, ax_rad, ax_p_vmag, ax_p_kamp, ax_p_rad = axes.flatten()
@@ -133,8 +133,10 @@ def summary_plot(df, benchmark_targets=None, id_key='Full TOI ID', hist_bin_num=
         bins = None
         if key == 'V mag':
             bins = np.linspace(df[key].min(), df[key].max(), hist_bin_num)
-        else:
-            bins = np.logspace(np.log10(df[key].min()), np.log10(df[key].max()), hist_bin_num)
+        elif key == 'K_amp':
+            bins = np.logspace(0, 2, hist_bin_num)
+        elif key == 'Planet Radius Value':
+            bins = np.logspace(0, np.log10(df[key].max()), hist_bin_num)
         colors = ['blue', 'black', 'red']
         for i in range(1, 4):
             histtype = None
