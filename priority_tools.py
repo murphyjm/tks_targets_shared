@@ -6,6 +6,8 @@
 #useful
 
 import numpy as np
+import matplotlib
+matplotlib.use('TkAgg') # To fix annoying "python is not installed as a framework" error
 import matplotlib.pyplot as plt
 import pandas as pd
 import astropy as ap
@@ -429,7 +431,9 @@ def counts_to_sigma(counts):
         Radial velocity measurement precision, in m/s.
     '''
     counts_to_sigma_dict = {
+        30:2.5,
         60:2.,
+        120:1.4,
         125:1.5,
         250:1.
     }
@@ -439,7 +443,7 @@ def counts_to_sigma(counts):
     #         counts = [counts]
     #assert all([count in counts_to_sigma_dict.keys() for count in counts]), 'For now, only use counts of 60k, 125k, and 250k.'
 
-    assert counts in counts_to_sigma_dict.keys(), 'For now, only use counts of 60k, 125k, and 250k.'
+    assert counts in counts_to_sigma_dict.keys(), 'For now, only use counts of 30k, 60k, 120k, 125k, and 250k.'
     return counts_to_sigma_dict[counts]
 
 def t_HIRES(vmag, n_counts, k, SNR=5.):

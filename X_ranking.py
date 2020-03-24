@@ -2,6 +2,11 @@
 This combines multiple cells from the prioritization_TSM_t_HIRES_ratio notebook into a single script,
 so that it outputs a simple dataframe with rankings for both methods.
 '''
+# System
+import os
+import sys
+import glob
+
 # Basic analysis
 import numpy as np
 import pandas as pd
@@ -9,8 +14,36 @@ import pandas as pd
 # Util functions
 from priority_tools import * # Implementation details and comments can be found in this file
 
+# Plotting
+import matplotlib
+matplotlib.use('TkAgg') # To fix annoying "python is not installed as a framework" error
+import matplotlib.pyplot as plt
+
+def get_newest_csv(folder_path):
+    '''
+    Get the filename of csv file in folder_path that is the most recent.
+
+    Taken from: https://stackoverflow.com/questions/39327032/how-to-get-the-latest-file-in-a-folder-using-python
+
+    Args
+    ----------
+    folder_path (str): A valid path to the folder that contains the .csv file you
+        want to search for.
+
+    Returns
+    ----------
+    str: Path to the .csv file that was most recently changed in folder_path.
+    '''
+    folder_path += '*.csv'
+    list_of_files = glob.glob(folder_path) # * means all if need specific format then *.csv
+    return max(list_of_files, key=os.path.getctime)
+
 def get_X_ranked_df(toi_path, tic_path):
     '''
+    This function bascially replicates what the Priority-Tools-Tutorial notebook does
+    but with the new X metric--the ratio of the TSM and the expected total exposure
+    time on HIRES to achieve a 5-sigma mass.
+
     Args
     ----------
     toi_path (string): Path to the TOI+ list file to use.
@@ -78,6 +111,128 @@ def get_X_ranked_df(toi_path, tic_path):
     compare_diff_df = compare_df[compare_df['TSM_Vmag_priority'] != compare_df['X_priority']]
 
     return compare_df, compare_diff_df
+
+def get_target_list(save_fname=None, toi_folder='data/toi/', tic_folder='data/exofop/', selected_TOIs_folder='data/TKS/', verbose=True):
+    '''
+    Get a target list that incorporates information from selected_TOIs and Jump.
+
+    The output of this function should be a good starting place for choosing targets
+    for Ashley's prioritization algorithm.
+
+    Args
+    ----------
+    save_fname (optional, str): Default=None. If give, save output to this filename.
+    toi_folder (optional, str): Default='data/toi/'. Folder containing the TOI+ lists.
+    tic_folder (optional, str): Default='data/exofop'. Folder containing the exofop
+        TIC star information.
+    selected_TOIs_folder (optional, str): Default='data/TKS/'. Folder containing
+        downloaded versions of the selected_TOIs Google sheet.
+    verbose (optional, bool): Default=True. Print out additional information about
+        the merging/filtering process while the call is executing.
+
+    Returns
+    ----------
+    DataFrame: Intersection of DataFrame from get_X_ranked_df() and selected_TOIs,
+        with some filtering.
+    '''
+
+    # Get the latest versions of the data
+    toi_path = get_newest_csv(toi_folder)
+    tic_path = get_newest_csv(tic_folder)
+    selected_TOIs_path = get_newest_csv(selected_TOIs_folder)
+
+    # Check to make sure these are the files that you want to use
+    if verbose:
+        print('TOI+ list file used: \t {}'.format(toi_path))
+        print('TIC ExoFOP file used: \t {}'.format(tic_path))
+        print('selected_TOIs file used: {}'.format(selected_TOIs_path))
+        print('')
+
+    # Generate the binned data frame with the X rankings.
+    print('Binning targets...')
+    X_df, __________ = get_X_ranked_df(toi_path, tic_path) # Don't really need the second dataframe that's returned
+    selected_TOIs_df = pd.read_csv(selected_TOIs_path)
+    print("The X_df dataframe has {} rows.".format(len(X_df)))
+    print("The selected_TOIs_df dataframe has {} rows.".format(len(selected_TOIs_df)))
+    print('')
+
+    # Merge X_df with selected_TOIs
+    X_tois_df = merge_with_selected_TOIs(X_df, selected_TOIs_df, verbose=verbose)
+
+    # Incorporate information from Jump
+    X_tois_df = use_jump_info(X_tois_df)
+
+    # Save the output if given a filename.
+    if save_fname is not None:
+        X_tois_df.to_csv(save_fname)
+        print('The target list was saved to {}.'.format(save_fname))
+
+    return X_tois_df
+
+def merge_with_selected_TOIs(X_df, selected_TOIs_df, vebose=True):
+    '''
+    Merge the binned, ranked dataframe of targets with those in selected_TOIs. Filter
+    out targets from the merged dataframe that failed vetting in selected_TOIs,
+    are known planets, or otherwise have 'hires_prv' = 'no'.
+
+    Args
+    ----------
+    X_df (DataFrame): DataFrame containing binned, ranked targets using the X metric.
+        See get_X_ranked_df() for details.
+    selected_TOIs_df (DataFrame): DataFrame of the selected_TOIs Google spreadsheet.
+
+    Returns
+    ----------
+    DataFrame: X_tois_df, the result of cross referencing our binned, ranked targets
+        with those in selected_TOIs.
+    '''
+
+    selected_TOIs_IDs = selected_TOIs_df['toi'].values
+    X_tois_df = X_df[X_df['Full TOI ID'].isin(selected_TOIs_IDs)] # Get the intersection of X_df and selected_TOIs_df
+    if verbose:
+        print("The intersection of X_df and the selected_TOIs_df has {} rows...".format(len(X_tois_df)))
+
+    # Use these columns to filter out systems that failed vetting in some way/are no longer being observed/are known planets
+    # The cps column will also be useful for comparing the targets to Jump database tables.
+    filter_cols = ['toi', 'tic', 'cps', 'disp', 'vetting', 'ao_vet', 'hires_prv', 'apf_prv']
+
+    # This long line merges X_tois_df and selected_TOIs_df with helpful filtering columns from selected_TOIs,
+    # while preserving the indices in X_tois_df, which contain binning information
+    X_tois_df = X_tois_df.reset_index().merge(selected_TOIs_df[filter_cols],
+                                              how='left', left_on='Full TOI ID', right_on='toi').set_index(X_tois_df.index.names)
+
+    # Filter out targets that are known planets, fail spectroscopic vetting, or otherwise have "no" for their hires_prv column.
+    X_tois_df = X_tois_df[X_tois_df['disp'] != 'KP']
+    if verbose:
+        print("After filtering out targets that are known planets, {} rows remain...".format(len(X_tois_df)))
+    X_tois_df = X_tois_df[X_tois_df['vetting'].isin(['passed', 'do observe'])]
+    if verbose:
+        print("After filtering out targets that failed spectroscopic vetting, {} rows remain...".format(len(X_tois_df)))
+    X_tois_df = X_tois_df[X_tois_df['hires_prv'] != 'no']
+    if verbose:
+        print("After filtering out targets whose hires_prv plan is 'no', {} rows remain.".format(len(X_tois_df)))
+
+    # Of the targets remaining, how many actually have a 1, 2, or 3 priority ranking in their bin?
+    print('')
+    sys.stdout.write("Of the {} remaining targets, ".format(len(X_tois_df[X_tois_df['X_priority'].isin([1.,2.,3.])])))
+    for i in range(1,4):
+        sys.stdout.write('{} are Priority {}'.format(len(X_tois_df[X_tois_df['X_priority'] == i]), i))
+        if i in [1,2]:
+            sys.stdout.write(', ')
+        else:
+            sys.stdout.write('.')
+    print('')
+
+    return X_tois_df
+
+def use_jump_info(X_tois_df):
+    '''
+    Once we have a list of targets that survived the initial prioritization, update
+    their X metrics using information from Jump.
+    '''
+    
+    return None
+
 
 def summary_plot(df, benchmark_targets=None, id_key='Full TOI ID', hist_bin_num=10):
     '''
