@@ -4,7 +4,7 @@ input to the TKS prioritization algorithm. It ranks targets based on the "X" met
 which is the ratio of the target's TSM and t_HIRES, the expected total exposure
 time needed to achieve a 5-sigma mass measurement on the system.
 
-Caveats:
+Notes:
     - Right now (03/24/20), the program does not incorporate information from Jump.
         Though, information that would be useful to have from Jump includes:
         - The number of observations a target already has, so we can deduct the

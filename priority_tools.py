@@ -446,7 +446,7 @@ def counts_to_sigma(counts):
     assert counts in counts_to_sigma_dict.keys(), 'For now, only use counts of 30k, 60k, 120k, 125k, and 250k.'
     return counts_to_sigma_dict[counts]
 
-def t_HIRES(vmag, n_counts, k, SNR=5.):
+def t_HIRES_plavchan(vmag, n_counts, k, SNR=5.):
     '''
     Calculate the total HIRES time (in seconds) needed to get a SNR-sigma detection of a planet.
 
@@ -461,6 +461,11 @@ def t_HIRES(vmag, n_counts, k, SNR=5.):
             times than actually necessary.
     - Joey, 03/21/20
 
+    Let's just move ahead with this, knowing that the expected exposure time is a
+        vast underestimate. It should work fine enough for planning purposes since
+        the targets are all being ranked relative to eachother on the same metric.
+        - Joey, 03/24/20
+
     Args:
         vmag (ndarray(float)): Target vmag
         n_counts (ndarray(int) or int): Desired exposure meter counts
@@ -470,11 +475,30 @@ def t_HIRES(vmag, n_counts, k, SNR=5.):
     Returns:
         ndarray(float): Estimated total exposure time needed on HIRES for a SNR-sigma
             mass measurement. Be wary of caveats noted above until they are addressed.
+        ndarray(float): Estimated number of observations needed to get a 5-sigma mass.
     '''
     t_ob = exposure_time(vmag, n_counts) # Time in seconds for a single exposure
     sigma = counts_to_sigma(n_counts)   # Velocity precision
+    N_obs = (SNR * sigma / k)**2        # Num observations needed for a 5-sigma mass
 
-    return t_ob * (SNR * sigma / k)**2
+    return t_ob * N_obs
+
+def t_HIRES_howard(vmag, n_counts, k, p_orb, SNR=6., t_span=90):
+    '''
+    Same as t_HIRES_plavchan but uses equation 9 from Howard & Fulton 2016
+    to calculate N_obs. Notice the different default value for the SNR, which they
+    suggest. Also, need to use the orbital information.
+
+    Comparing the rankings using the two t_HIRES functions, they don't change. Let's
+    just move ahead using the Plavchan one for now since it's slightly simpler.
+    - Joey, 03/24/20
+    '''
+    t_ob = exposure_time(vmag, n_counts)
+    sigma = counts_to_sigma(n_counts)
+    tau = p_orb / t_span # Uses fiducial value of 90 days as the default time span
+    N_obs = (SNR * sigma / k)**2 * (1 + (10**(tau-1.5))**2)
+
+    return t_ob * N_obs
 
 def return_known_spectra():
     '''

@@ -78,7 +78,7 @@ def get_X_ranked_df(toi_path, tic_path):
     df = tess.append(kps[np.logical_and(kps['K_amp'] > 1.5, kps['TSM'] > 10)],sort=False)
 
     n_counts = 250 # This might change in the future
-    df['t_HIRES'] = t_HIRES(df['V mag'], n_counts, df['K_amp'])
+    df['t_HIRES'] = t_HIRES_plavchan(df['V mag'], n_counts, df['K_amp'])
     df['X'] = df['TSM']/df['t_HIRES']
 
     # Defining the bins:
@@ -159,8 +159,9 @@ def get_target_list(save_fname=None, toi_folder='data/toi/', tic_folder='data/ex
     # Merge X_df with selected_TOIs
     X_tois_df = merge_with_selected_TOIs(X_df, selected_TOIs_df, verbose=verbose)
 
+    # TODO: Decide what information from Jump will be relevant
     # Incorporate information from Jump
-    X_tois_df = use_jump_info(X_tois_df)
+    # X_tois_df = use_jump_info(X_tois_df)
 
     # Save the output if given a filename.
     if save_fname is not None:
@@ -169,7 +170,7 @@ def get_target_list(save_fname=None, toi_folder='data/toi/', tic_folder='data/ex
 
     return X_tois_df
 
-def merge_with_selected_TOIs(X_df, selected_TOIs_df, vebose=True):
+def merge_with_selected_TOIs(X_df, selected_TOIs_df, verbose=True):
     '''
     Merge the binned, ranked dataframe of targets with those in selected_TOIs. Filter
     out targets from the merged dataframe that failed vetting in selected_TOIs,
@@ -194,11 +195,11 @@ def merge_with_selected_TOIs(X_df, selected_TOIs_df, vebose=True):
 
     # Use these columns to filter out systems that failed vetting in some way/are no longer being observed/are known planets
     # The cps column will also be useful for comparing the targets to Jump database tables.
-    filter_cols = ['toi', 'tic', 'cps', 'disp', 'vetting', 'ao_vet', 'hires_prv', 'apf_prv']
+    selected_TOIs_cols = ['toi', 'tic', 'cps', 'disp', 'vetting', 'ao_vet', 'hires_prv', 'apf_prv']
 
     # This long line merges X_tois_df and selected_TOIs_df with helpful filtering columns from selected_TOIs,
     # while preserving the indices in X_tois_df, which contain binning information
-    X_tois_df = X_tois_df.reset_index().merge(selected_TOIs_df[filter_cols],
+    X_tois_df = X_tois_df.reset_index().merge(selected_TOIs_df[selected_TOIs_cols],
                                               how='left', left_on='Full TOI ID', right_on='toi').set_index(X_tois_df.index.names)
 
     # Filter out targets that are known planets, fail spectroscopic vetting, or otherwise have "no" for their hires_prv column.
@@ -214,7 +215,7 @@ def merge_with_selected_TOIs(X_df, selected_TOIs_df, vebose=True):
 
     # Of the targets remaining, how many actually have a 1, 2, or 3 priority ranking in their bin?
     print('')
-    sys.stdout.write("Of the {} remaining targets, ".format(len(X_tois_df[X_tois_df['X_priority'].isin([1.,2.,3.])])))
+    sys.stdout.write("Of the {} remaining targets with priorities, ".format(len(X_tois_df[X_tois_df['X_priority'].isin([1.,2.,3.])])))
     for i in range(1,4):
         sys.stdout.write('{} are Priority {}'.format(len(X_tois_df[X_tois_df['X_priority'] == i]), i))
         if i in [1,2]:
@@ -225,13 +226,13 @@ def merge_with_selected_TOIs(X_df, selected_TOIs_df, vebose=True):
 
     return X_tois_df
 
-def use_jump_info(X_tois_df):
-    '''
-    Once we have a list of targets that survived the initial prioritization, update
-    their X metrics using information from Jump.
-    '''
-    
-    return None
+# def use_jump_info(X_tois_df):
+#     '''
+#     Once we have a list of targets that survived the initial prioritization, update
+#     their X metrics using information from Jump.
+#     '''
+#
+#     return None
 
 
 def summary_plot(df, benchmark_targets=None, id_key='Full TOI ID', hist_bin_num=10):
