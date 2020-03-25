@@ -36,15 +36,89 @@ parser.add_argument('save_fname', type=str, default=None, help='File save path f
 parser.add_argument('--toi_folder', type=str, default='data/toi/', help='Folder with toi+ lists.')
 parser.add_argument('--tic_folder', type=str, default='data/exofop/', help='Folder with TIC info.')
 parser.add_argument('--selected_TOIs_folder', type=str, default='data/TKS/', help='Folder with selected_TOIs csv.')
-parser.add_argument('--verbose', type=bool, default=True, help='Print additional messages during target list generation?')
+parser.add_argument('--include_qlp', type=str, default='False', help='Include QLP TOIs in ranking algorithm?')
+parser.add_argument('--verbose', type=str, default='True', help='Print additional messages during target list generation?')
+
+def save_to_csv(df, save_fname):
+    '''
+    Save the df to file.
+    '''
+    df.to_csv(save_fname)
+    print('The target list was saved to {}.'.format(save_fname))
+
+def mark_vip_targets(df, vip_fname):
+    '''
+    Add a column to the DataFrame signifying a VIP priority for certain targets that
+    we want to send directly to the top of our priority list, regardless of other
+    sorting methods.
+    '''
+    if vip_fname is not '':
+        vip_list = np.loadtxt(vip_fname, dtype=str)
+        data = zip(vip_list, np.arange(1, len(vip_list)+1))
+        cols = ['cps', 'vip_rank']
+        vip_df = pd.DataFrame(data, columns=cols)
+
+        # Merge the X_tois_df with the vip_df while preserving the indexes on the X_tois_df, which contain binning info
+        return df.reset_index().merge(vip_df, how='left', left_on='cps', right_on='cps').set_index(df.index.names)
+    else:
+        df['vip_rank'] = np.nan # Make vip_rank column empty is no file given
+        return df
 
 if __name__ == '__main__':
 
     args = parser.parse_args()
-    verbose = args.verbose
+    save_fname = args.save_fname
+    toi_folder = args.toi_folder
+    tic_folder = args.tic_folder
+    selected_TOIs_folder = args.selected_TOIs_folder
+
+    # Convert these optional arguments to bools, if they're specified.
+    include_qlp_str = args.include_qlp
+    assert include_qlp_str.lower() in ['false', 'true'], '--include_qlp must be either True or False'
+    include_qlp = False
+    if include_qlp_str.lower() == 'false':
+        include_qlp = False
+    elif include_qlp_str.lower() == 'true':
+        include_qlp = True
+
+    verbose_str = args.verbose
+    assert verbose_str.lower() in ['false', 'true'], '--verbose must be either True or False'
+    verbose = None
+    if verbose_str.lower() == 'false':
+        verbose = False
+    elif verbose_str.lower() == 'true':
+        verbose = True
+
 
     # Get the initial target list
     print('Generating initial target list...')
     print('')
-    X_tois_df = get_target_list(save_fname=args.save_fname, toi_folder=args.toi_folder, tic_folder=args.tic_folder, selected_TOIs_folder=args.selected_TOIs_folder, verbose=args.verbose)
+    X_tois_df = get_target_list(save_fname=None, toi_folder=toi_folder, tic_folder=tic_folder,
+    selected_TOIs_folder=selected_TOIs_folder, include_qlp=include_qlp, verbose=verbose)
+    print('----------')
+
+    # Add VIP targets
+    print('Would you like to mark VIP targets that will get selected first? y/n')
+    vip_yn_valid = False
+    while not vip_yn_valid:
+        vip_yn = input().lower()
+        if vip_yn in ['yes', 'y']:
+            vip_yn_valid = True
+            sys.stdout.write("Provide the path to the .txt file with your VIP targets' CPS IDs listed one per row, in order of highest VIP to lowest: ")
+            vip_path_valid = False
+            while not vip_path_valid:
+                vip_fname = input()
+                if os.path.exists(vip_fname):
+                    vip_path_valid = True
+                else:
+                    print('')
+                    print('That is not a valid path, enter another...')
+            X_tois_df = mark_vip_targets(X_tois_df, vip_fname)
+            save_to_csv(X_tois_df, save_fname)
+        elif vip_yn in ['no', 'n']:
+            vip_yn_valid = True
+            X_tois_df = mark_vip_targets(X_tois_df, '') # Add the vip_rank column but leave it empty
+            save_to_csv(X_tois_df, save_fname)
+        else:
+            print('Please enter yes or no...')
     print('----------')

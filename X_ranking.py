@@ -38,7 +38,7 @@ def get_newest_csv(folder_path):
     list_of_files = glob.glob(folder_path) # * means all if need specific format then *.csv
     return max(list_of_files, key=os.path.getctime)
 
-def get_X_ranked_df(toi_path, tic_path):
+def get_X_ranked_df(toi_path, tic_path, include_qlp=False):
     '''
     This function bascially replicates what the Priority-Tools-Tutorial notebook does
     but with the new X metric--the ratio of the TSM and the expected total exposure
@@ -48,6 +48,7 @@ def get_X_ranked_df(toi_path, tic_path):
     ----------
     toi_path (string): Path to the TOI+ list file to use.
     tic_path (string): Path to the TIC star information file to use.
+    include_qlp (bool): Optionally consider QLPs in the prioritization ranking.
 
     Returns
     ----------
@@ -71,7 +72,7 @@ def get_X_ranked_df(toi_path, tic_path):
     TIC_info = pd.read_csv(tic_path, delimiter=',', comment='#', header=1, usecols=[0,1,2,3,4,5,6])
 
     # Run the data cleaning function
-    tess = clean_tess_data(toiplus, TIC_info, include_qlp=False)
+    tess = clean_tess_data(toiplus, TIC_info, include_qlp=include_qlp)
 
     # Load the known planets (and Kepler PCs) table, and merge it
     kps = pd.read_csv(r'data/kp-k14_pc-v14.csv')
@@ -94,12 +95,14 @@ def get_X_ranked_df(toi_path, tic_path):
     # The two different ranking methods:
     # Sort things by TSM and then sort the top three in TSM by their Vmag
     binned_TSM_Vmag_df = binning_function(df, bins)
+    binned_TSM_Vmag_df['priority'] = binned_TSM_Vmag_df['priority'].replace(0., np.nan) # Replace 0-rankings with nans to make filtering easier
 
     # Sort things by the ratio of TSM and the total exposure time needed to get a 5-sigma mass
     binned_X_df = binning_function_X(df, bins)
+    binned_X_df['priority'] = binned_X_df['priority'].replace(0., np.nan) # Replace 0-rankings with nans to make filtering easier
 
     # Cut down on some of the extraneous columns
-    useful_cols = ['Full TOI ID', rp_key, pp_key, Ts_key, Fp_key,
+    useful_cols = ['Source Pipeline', 'Full TOI ID', rp_key, pp_key, Ts_key, Fp_key,
                    'Planet Equilibrium Temperature (K) Value', 'V mag','K_amp', 'TSM', 't_HIRES', 'X']
     compare_df = pd.DataFrame()
     compare_df[useful_cols] = binned_TSM_Vmag_df[useful_cols]
@@ -112,7 +115,7 @@ def get_X_ranked_df(toi_path, tic_path):
 
     return compare_df, compare_diff_df
 
-def get_target_list(save_fname=None, toi_folder='data/toi/', tic_folder='data/exofop/', selected_TOIs_folder='data/TKS/', verbose=True):
+def get_target_list(save_fname=None, toi_folder='data/toi/', tic_folder='data/exofop/', selected_TOIs_folder='data/TKS/', include_qlp=False, verbose=True):
     '''
     Get a target list that incorporates information from selected_TOIs and Jump.
 
@@ -150,7 +153,7 @@ def get_target_list(save_fname=None, toi_folder='data/toi/', tic_folder='data/ex
 
     # Generate the binned data frame with the X rankings.
     print('Binning targets...')
-    X_df, __________ = get_X_ranked_df(toi_path, tic_path) # Don't really need the second dataframe that's returned
+    X_df, __________ = get_X_ranked_df(toi_path, tic_path, include_qlp=include_qlp) # Don't really need the second dataframe that's returned
     selected_TOIs_df = pd.read_csv(selected_TOIs_path)
     print("The X_df dataframe has {} rows.".format(len(X_df)))
     print("The selected_TOIs_df dataframe has {} rows.".format(len(selected_TOIs_df)))
