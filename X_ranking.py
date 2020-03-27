@@ -38,7 +38,7 @@ def get_newest_csv(folder_path):
     list_of_files = glob.glob(folder_path) # * means all if need specific format then *.csv
     return max(list_of_files, key=os.path.getctime)
 
-def get_X_ranked_df(toi_path, tic_path, include_qlp=False):
+def get_X_ranked_df(toi_path, tic_path, include_qlp=False, num_to_rank=3):
     '''
     This function bascially replicates what the Priority-Tools-Tutorial notebook does
     but with the new X metric--the ratio of the TSM and the expected total exposure
@@ -49,6 +49,8 @@ def get_X_ranked_df(toi_path, tic_path, include_qlp=False):
     toi_path (string): Path to the TOI+ list file to use.
     tic_path (string): Path to the TIC star information file to use.
     include_qlp (bool): Optionally consider QLPs in the prioritization ranking.
+    num_to_rank (int): Optionally change the number of targest ranked per bin. Default
+        is 3.
 
     Returns
     ----------
@@ -98,7 +100,7 @@ def get_X_ranked_df(toi_path, tic_path, include_qlp=False):
     binned_TSM_Vmag_df['priority'] = binned_TSM_Vmag_df['priority'].replace(0., np.nan) # Replace 0-rankings with nans to make filtering easier
 
     # Sort things by the ratio of TSM and the total exposure time needed to get a 5-sigma mass
-    binned_X_df = binning_function_X(df, bins)
+    binned_X_df = binning_function_X(df, bins, num_to_rank=num_to_rank)
     binned_X_df['priority'] = binned_X_df['priority'].replace(0., np.nan) # Replace 0-rankings with nans to make filtering easier
 
     # Cut down on some of the extraneous columns
@@ -115,7 +117,7 @@ def get_X_ranked_df(toi_path, tic_path, include_qlp=False):
 
     return compare_df, compare_diff_df
 
-def get_target_list(save_fname=None, toi_folder='data/toi/', tic_folder='data/exofop/', selected_TOIs_folder='data/TKS/', include_qlp=False, verbose=True):
+def get_target_list(save_fname=None, toi_folder='data/toi/', tic_folder='data/exofop/', selected_TOIs_folder='data/TKS/', include_qlp=False, verbose=True, num_to_rank=3):
     '''
     Get a target list that incorporates information from selected_TOIs and Jump.
 
@@ -130,8 +132,11 @@ def get_target_list(save_fname=None, toi_folder='data/toi/', tic_folder='data/ex
         TIC star information.
     selected_TOIs_folder (optional, str): Default='data/TKS/'. Folder containing
         downloaded versions of the selected_TOIs Google sheet.
+    include_qlp (bool): Optionally consider QLPs in the prioritization ranking.
     verbose (optional, bool): Default=True. Print out additional information about
         the merging/filtering process while the call is executing.
+    num_to_rank (int): Optionally change the number of targest ranked per bin. Default
+        is 3.
 
     Returns
     ----------
@@ -153,14 +158,14 @@ def get_target_list(save_fname=None, toi_folder='data/toi/', tic_folder='data/ex
 
     # Generate the binned data frame with the X rankings.
     print('Binning targets...')
-    X_df, __________ = get_X_ranked_df(toi_path, tic_path, include_qlp=include_qlp) # Don't really need the second dataframe that's returned
+    X_df, __________ = get_X_ranked_df(toi_path, tic_path, include_qlp=include_qlp, num_to_rank=num_to_rank) # Don't really need the second dataframe that's returned
     selected_TOIs_df = pd.read_csv(selected_TOIs_path)
     print("The X_df dataframe has {} rows.".format(len(X_df)))
     print("The selected_TOIs_df dataframe has {} rows.".format(len(selected_TOIs_df)))
     print('')
 
     # Merge X_df with selected_TOIs
-    X_tois_df = merge_with_selected_TOIs(X_df, selected_TOIs_df, verbose=verbose)
+    X_tois_df = merge_with_selected_TOIs(X_df, selected_TOIs_df, verbose=verbose, num_to_rank=num_to_rank)
 
     # TODO: Decide what information from Jump will be relevant
     # Incorporate information from Jump
@@ -173,7 +178,7 @@ def get_target_list(save_fname=None, toi_folder='data/toi/', tic_folder='data/ex
 
     return X_tois_df
 
-def merge_with_selected_TOIs(X_df, selected_TOIs_df, verbose=True):
+def merge_with_selected_TOIs(X_df, selected_TOIs_df, verbose=True, num_to_rank=3):
     '''
     Merge the binned, ranked dataframe of targets with those in selected_TOIs. Filter
     out targets from the merged dataframe that failed vetting in selected_TOIs,
@@ -184,6 +189,8 @@ def merge_with_selected_TOIs(X_df, selected_TOIs_df, verbose=True):
     X_df (DataFrame): DataFrame containing binned, ranked targets using the X metric.
         See get_X_ranked_df() for details.
     selected_TOIs_df (DataFrame): DataFrame of the selected_TOIs Google spreadsheet.
+    num_to_rank (int): Optionally change the number of targest ranked per bin. Default
+        is 3.
 
     Returns
     ----------
@@ -212,16 +219,21 @@ def merge_with_selected_TOIs(X_df, selected_TOIs_df, verbose=True):
     X_tois_df = X_tois_df[X_tois_df['vetting'].isin(['passed', 'do observe'])]
     if verbose:
         print("After filtering out targets that failed spectroscopic vetting, {} rows remain...".format(len(X_tois_df)))
+    X_tois_df = X_tois_df[X_tois_df['ao_vet'] != 'failed']
+    if verbose:
+        print("After filtering out targets that failed AO vetting, {} rows remain...".format(len(X_tois_df)))
     X_tois_df = X_tois_df[X_tois_df['hires_prv'] != 'no']
     if verbose:
         print("After filtering out targets whose hires_prv plan is 'no', {} rows remain.".format(len(X_tois_df)))
 
-    # Of the targets remaining, how many actually have a 1, 2, or 3 priority ranking in their bin?
+    # Of the targets remaining, how many actually have a 1, 2, 3, etc. priority ranking in their bin?
     print('')
-    sys.stdout.write("Of the {} remaining targets with priorities, ".format(len(X_tois_df[X_tois_df['X_priority'].isin([1.,2.,3.])])))
-    for i in range(1,4):
-        sys.stdout.write('{} are Priority {}'.format(len(X_tois_df[X_tois_df['X_priority'] == i]), i))
-        if i in [1,2]:
+    num_list = [len(X_tois_df[X_tois_df['X_priority'] == i]) for i in range(1, num_to_rank+1)]
+    tot_num_p = sum(num_list)
+    sys.stdout.write("Of the {} targets with priorities, ".format(tot_num_p))
+    for i in range(1,num_to_rank+1):
+        sys.stdout.write('{} are Priority {}'.format(num_list[i-1], i))
+        if i in range(1,num_to_rank):
             sys.stdout.write(', ')
         else:
             sys.stdout.write('.')

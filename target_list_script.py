@@ -38,6 +38,7 @@ parser.add_argument('--tic_folder', type=str, default='data/exofop/', help='Fold
 parser.add_argument('--selected_TOIs_folder', type=str, default='data/TKS/', help='Folder with selected_TOIs csv.')
 parser.add_argument('--include_qlp', type=str, default='False', help='Include QLP TOIs in ranking algorithm?')
 parser.add_argument('--verbose', type=str, default='True', help='Print additional messages during target list generation?')
+parser.add_argument('--num_to_rank', type=str, default='3', help='Number of targets to assign priorities to per bin.')
 
 def save_to_csv(df, save_fname):
     '''
@@ -71,8 +72,9 @@ if __name__ == '__main__':
     toi_folder = args.toi_folder
     tic_folder = args.tic_folder
     selected_TOIs_folder = args.selected_TOIs_folder
+    num_to_rank = int(args.num_to_rank)
 
-    # Convert these optional arguments to bools, if they're specified.
+    # Convert these optional arguments to other data types, if they're specified.
     include_qlp_str = args.include_qlp
     assert include_qlp_str.lower() in ['false', 'true'], '--include_qlp must be either True or False'
     include_qlp = False
@@ -89,12 +91,10 @@ if __name__ == '__main__':
     elif verbose_str.lower() == 'true':
         verbose = True
 
-
     # Get the initial target list
     print('Generating initial target list...')
     print('')
-    X_tois_df = get_target_list(save_fname=None, toi_folder=toi_folder, tic_folder=tic_folder,
-    selected_TOIs_folder=selected_TOIs_folder, include_qlp=include_qlp, verbose=verbose)
+    X_tois_df = get_target_list(save_fname=None, toi_folder=toi_folder, tic_folder=tic_folder, selected_TOIs_folder=selected_TOIs_folder, include_qlp=include_qlp, verbose=verbose, num_to_rank=num_to_rank)
     print('----------')
 
     # Add VIP targets

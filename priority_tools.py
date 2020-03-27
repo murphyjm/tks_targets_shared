@@ -270,7 +270,7 @@ def binning_function(dataset,bins,id_key='Full TOI ID', sort_val='TSM'):
 
     return binned
 
-def binning_function_X(dataset, bins, id_key='Full TOI ID', sort_val='X'):
+def binning_function_X(dataset, bins, id_key='Full TOI ID', sort_val='X', num_to_rank=3):
     '''
     This function is a copy of the one above, though it doesn't include sorting
     by Vmag because, by default, it sorts by the "X" column, which is the ratio
@@ -279,6 +279,8 @@ def binning_function_X(dataset, bins, id_key='Full TOI ID', sort_val='X'):
 
     Arguments and return object are the same as above, save for the different
     sorting method.
+
+    num_to_rank (optional, int): The number of targets to rank per bin.
 
     - Joey, 03/22/20
     '''
@@ -318,26 +320,20 @@ def binning_function_X(dataset, bins, id_key='Full TOI ID', sort_val='X'):
 
     for idx in unique_idx:
 
-        bin_items = len(binned.loc[idx].sort_values(sort_val,ascending=False).iloc[0:3][id_key])
-            #the number of objects in each bin
+        bin_items = len(binned.loc[idx].sort_values(sort_val,ascending=False).iloc[0:num_to_rank][id_key])
+        #the number of objects in each bin
+        
+        for i in range(1, num_to_rank+1):
 
-        if bin_items >= 3:
-            binned.loc[binned[id_key] == binned.loc[idx].sort_values\
-                    (sort_val,ascending=False).iloc[0:3][id_key].iloc[0],'priority'] = 1
-            binned.loc[binned[id_key] == binned.loc[idx].sort_values\
-                    (sort_val,ascending=False).iloc[0:3][id_key].iloc[1],'priority'] = 2
-            binned.loc[binned[id_key] == binned.loc[idx].sort_values\
-                    (sort_val,ascending=False).iloc[0:3][id_key].iloc[2],'priority'] = 3
+            if bin_items == i and bin_items <= num_to_rank:
+                for j in range(i):
+                    binned.loc[binned[id_key] == binned.loc[idx].sort_values\
+                            (sort_val,ascending=False).iloc[0:num_to_rank][id_key].iloc[j],'priority'] = j + 1
 
-        elif bin_items == 2:
-            binned.loc[binned[id_key] == binned.loc[idx].sort_values\
-                    (sort_val,ascending=False).iloc[0:3][id_key].iloc[0],'priority'] = 1
-            binned.loc[binned[id_key] == binned.loc[idx].sort_values\
-                    (sort_val,ascending=False).iloc[0:3][id_key].iloc[1],'priority'] = 2
-
-        elif bin_items == 1:
-            binned.loc[binned[id_key] == binned.loc[idx].sort_values\
-                    (sort_val,ascending=False).iloc[0:3][id_key].iloc[0],'priority'] = 1
+            elif bin_items > num_to_rank:
+                for j in range(num_to_rank):
+                    binned.loc[binned[id_key] == binned.loc[idx].sort_values\
+                            (sort_val,ascending=False).iloc[0:num_to_rank][id_key].iloc[j],'priority'] = j + 1
 
         # Note from Nicholas, leftover from function above (but with part about
         # sorting by Vmag deleted):
