@@ -274,13 +274,16 @@ def summary_plot(df, benchmark_targets=None, id_key='Full TOI ID', hist_bin_num=
     '''
 
     def plot_benchmark_targets(planet_list):
-        for planet in planet_list:
+        for i,planet in enumerate(planet_list):
             curr_row = df[df[id_key] == planet]
 
             if type(planet) != str:
                 planet = str(planet)
 
-            ax_vmag.plot(curr_row['V mag'].values, curr_row['X'].values, '.', color='red', alpha=0.7)
+            if i == 0:
+                ax_vmag.plot(curr_row['V mag'].values, curr_row['X'].values, '.', color='red', alpha=0.7, label='VIP Target')
+            else:
+                ax_vmag.plot(curr_row['V mag'].values, curr_row['X'].values, '.', color='red', alpha=0.7)
             ax_vmag.text(curr_row['V mag'].values[0] + 0.1, curr_row['X'].values[0] * 1.25, planet, fontsize=12)
 
             ax_kamp.plot(curr_row['K_amp'].values, curr_row['X'].values, '.', color='red', alpha=0.7)
@@ -294,7 +297,7 @@ def summary_plot(df, benchmark_targets=None, id_key='Full TOI ID', hist_bin_num=
     ax_vmag, ax_kamp, ax_rad, ax_p_vmag, ax_p_kamp, ax_p_rad = axes.flatten()
 
     # Plot as a function of V magnitude
-    ax_vmag.plot(df['V mag'], df['X'], '.', alpha=0.3)
+    ax_vmag.plot(df['V mag'], df['X'], '.', alpha=0.5, label='Picked by SC3')
     vmag_low, vmag_high = ax_vmag.get_xlim()
     ax_vmag.set_xlim([vmag_high, vmag_low]) # Invert x axis
     ax_vmag.set_xlabel('$V$ [mag]', fontsize=14)
@@ -312,6 +315,8 @@ def summary_plot(df, benchmark_targets=None, id_key='Full TOI ID', hist_bin_num=
         assert all([target in df[id_key].values for target in benchmark_targets]), \
         'One of the benchmark targets is not contained in the DataFrame.'
         plot_benchmark_targets(benchmark_targets)
+
+    ax_vmag.legend(fancybox=True, fontsize=12)
 
     # Plot histograms of p1, p2, and p3 targets
     hist_axes = [ax_p_vmag, ax_p_kamp, ax_p_rad]

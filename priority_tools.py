@@ -322,7 +322,7 @@ def binning_function_X(dataset, bins, id_key='Full TOI ID', sort_val='X', num_to
 
         bin_items = len(binned.loc[idx].sort_values(sort_val,ascending=False).iloc[0:num_to_rank][id_key])
         #the number of objects in each bin
-        
+
         for i in range(1, num_to_rank+1):
 
             if bin_items == i and bin_items <= num_to_rank:
@@ -586,6 +586,8 @@ def bin_plotter(binned_data, bins, rbin):
                 return 'yellow'
             if priority == 3:
                 return 'orange'
+            else:
+                return 'black'
 
     def textcolorfinder(name):
         if name in kpwks:
@@ -610,7 +612,7 @@ def bin_plotter(binned_data, bins, rbin):
 
     for i in np.arange(len(rbin1)):
         ax.semilogx(F[i], Ts[i], '.',ms=rp[i]*5,color=colorfinder(N[i],P[i]))
-        ax.annotate(txt[i], (F[i], Ts[i]+rp[i]*9),color=textcolorfinder(N[i]))
+        ax.annotate(txt[i], (F[i], Ts[i]+rp[i]*9),color=textcolorfinder(N[i]), alpha=0.7)
 
     ##added for TKS in person
     for f in np.arange(1,6,1):
@@ -626,3 +628,7 @@ def bin_plotter(binned_data, bins, rbin):
     ax.set_ylabel('Stellar Effective Temperature (K)')
     ax.set_xlabel(r'Insolation Flux')
     ax.set_title(title_txt)
+
+    plt.show()
+
+    return fig, ax
