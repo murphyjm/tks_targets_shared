@@ -133,6 +133,9 @@ def clean_tess_data(toi_plus_list, tic_star_info, dec_cut=-20,
     c[mp_key] = basic_mr(c[rp_key])
     c[ars_key] = ars_from_t(c[pp_key], c[ms_key], c[rs_key])
     c['K_amp'] = k_amp_finder(c[ms_key],c[rs_key],c[mp_key],c[ars_key])
+    c['mass_flag'] = 0. # Mass flag is 1 if targets have a known mass, 0 if calculated from M-R relationship.
+                        # A few TOIs are known planets *with* masses, though, so this is slightly incorrect.
+                        # To fix, need to get a list of TOIs that are KPs with masses.
     catalog_2 = pd.merge(c,star_info, left_on = 'TIC', right_on = 'Target')
 
     #get rid of junk columns
@@ -538,7 +541,7 @@ def has_obs(data, kpwks):
             ho[i] = 1
     return ho
 
-def bin_plotter(binned_data, bins, rbin):
+def bin_plotter(binned_data, bins, rbin, use_alpha=False):
     '''
     Function for visualization of the binned data.
     Inputs are the dataframe itself and the radius bin
@@ -573,29 +576,69 @@ def bin_plotter(binned_data, bins, rbin):
     #(i.e. whether it's legible)
 
     def colorfinder(name, priority):
+
+        mass_flag = data_copy[data_copy[id_key] == name]['mass_flag'].values[0]
+
         if name in kpwks:
             idx = kpwks.index(name)
             if hf[idx]:
                 return 'red'
             elif not hf[idx]:
                 return 'dimgrey'
+
+        # If this is a planet with a known mass
+        elif mass_flag == 1.:
+            return 'magenta'
+
+        # elif name in ['K2-182 b', 'K2-199 b', 'K2-199 c']:
+        #     return 'lime'
+
+
         else:
-            if priority == 1:
+            if use_alpha:
                 return 'green'
-            if priority == 2:
-                return 'yellow'
-            if priority == 3:
-                return 'orange'
             else:
-                return 'black'
+                if priority == 1:
+                    return 'green'
+                if priority == 2:
+                    return 'yellow'
+                if priority == 3:
+                    return 'orange'
+                if priority == 4:
+                    return 'pink'
+                if priority == 5:
+                    return 'cyan'
+                else:
+                    return 'black'
+
+    def alphafinder(name, priority):
+        mass_flag = data_copy[data_copy[id_key] == name]['mass_flag'].values[0]
+
+        if name in kpwks:
+            idx = kpwks.index(name)
+            if hf[idx]:
+                return 1.
+            elif not hf[idx]:
+                return 1.
+        elif mass_flag == 1.:
+            return 1.
+        else:
+            if priority in [1,2,3,4,5]:
+                return 1./priority
+            else:
+                return 0.15
 
     def textcolorfinder(name):
+        mass_flag = data_copy[data_copy[id_key] == name]['mass_flag'].values[0]
+
         if name in kpwks:
             idx = kpwks.index(name)
             if hf[idx]:
                 return 'red'
             elif not hf[idx]:
                 return 'dimgrey'
+        elif mass_flag == 1.:
+            return 'magenta'
         else:
             return 'black'
 
@@ -611,7 +654,10 @@ def bin_plotter(binned_data, bins, rbin):
 
 
     for i in np.arange(len(rbin1)):
-        ax.semilogx(F[i], Ts[i], '.',ms=rp[i]*5,color=colorfinder(N[i],P[i]))
+        if use_alpha:
+            ax.semilogx(F[i], Ts[i], '.',ms=rp[i]*5, color=colorfinder(N[i],P[i]), alpha=alphafinder(N[i], P[i]))
+        else:
+            ax.semilogx(F[i], Ts[i], '.',ms=rp[i]*5, color=colorfinder(N[i],P[i]))
         ax.annotate(txt[i], (F[i], Ts[i]+rp[i]*9),color=textcolorfinder(N[i]), alpha=0.7)
 
     ##added for TKS in person

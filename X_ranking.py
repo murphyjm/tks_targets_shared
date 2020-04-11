@@ -77,7 +77,7 @@ def get_X_ranked_df(toi_path, tic_path, include_qlp=False, num_to_rank=3):
     tess = clean_tess_data(toiplus, TIC_info, include_qlp=include_qlp)
 
     # Load the known planets (and Kepler PCs) table, and merge it
-    kps = pd.read_csv(r'data/kp-k14_pc-v14.csv')
+    kps = pd.read_csv(r'data/kp-k14_pc-v14_w_mass_flag.csv') # This new file has the mass_flag column.
     df = tess.append(kps[np.logical_and(kps['K_amp'] > 1.5, kps['TSM'] > 10)],sort=False)
 
     n_counts = 250 # This might change in the future
@@ -105,7 +105,7 @@ def get_X_ranked_df(toi_path, tic_path, include_qlp=False, num_to_rank=3):
 
     # Cut down on some of the extraneous columns
     useful_cols = ['Source Pipeline', 'Full TOI ID', rp_key, pp_key, Ts_key, Fp_key,
-                   'Planet Equilibrium Temperature (K) Value', 'V mag','K_amp', 'TSM', 't_HIRES', 'X']
+                   'Planet Equilibrium Temperature (K) Value', 'mass_flag', 'V mag','K_amp', 'TSM', 't_HIRES', 'X']
     compare_df = pd.DataFrame()
     compare_df[useful_cols] = binned_TSM_Vmag_df[useful_cols]
     compare_df['TSM_Vmag_priority'] = binned_TSM_Vmag_df['priority']

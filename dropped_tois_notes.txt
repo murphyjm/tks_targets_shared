@@ -1,0 +1,63 @@
+Of our chosen target picks, how many are unique to SC3 alone?
+- Only 2:
+    - TOI 1410.01
+    - TOI 1728.01 (included because of VIP list)
+
+TOIs with Priority 1 that get dropped when merging on selected_TOIs
+
+- 287.01
+    - Public comment on ExoFOP
+        - “synchronized with stellar rotation”
+    - Not in Southern TOIs visible to Keck
+- 526.01 # Follow up
+    - Clear background EB (From natalie)
+    - Public comment on ExoFOP
+        - “possibly marginal”
+    - Not in Southern TOIs visible to Keck
+- 680.01
+    - Potential FP
+    - From Southern TOIs visible to Keck: “Achontos, Short period, lots of follow-up. Stellar companion at 0.78"
+- 1598.01 # Follow up
+    - From Jump:
+        - AH: “Removed from TKS program based on SPOC vetting (OoT=4.4sig).”
+    - From ExoFOP:
+        - mayo: “FP, OoT centroid shift (4.4sig).”
+    - Failed S18 SPOC photometric vetting
+    - “Low Signal-to-Noise”
+- 1632.01
+    - Failed S18 SPOC photometric vetting via V mag < 13 cut
+    - V mag = 15.87
+- 1634.01
+    - Failed S18 SPOC photometric vetting via V mag < 13 cut
+    - V mag = 13.22
+- 1638.01
+    - Failed S18 SPOC photometric vetting via V mag < 13 cut
+    - V mag = 13.85
+- 1639.01
+    - Failed S18 SPOC photometric vetting via V mag < 13 cut
+    - V mag = 14.38
+- 1685.01
+    - Failed S19 SPOC photometric vetting via V mag < 13 cut
+    - V mag = 13.38
+- 1760.01
+    - Failed S19 SPOC photometric vetting via V mag < 13 cut
+    - V mag = 13.99
+
+TOIs with Priority 1 that get dropped when removing known planets (which made it through to selected_TOIs)
+
+- 1773.01
+    - Known planet 55Cnc e
+- 1779.01
+    - Known planet LP261-75 b
+
+TOIs with Priority 1 that get dropped when removing targets that fail spectroscopic vetting
+(none)
+
+TOIs with Priority 1 that get dropped when removing targets that fail spectroscopic vetting
+(none)
+
+TOIs with Priority 1 that get dropped when removing targets with ‘hires_prv’ = ‘no’
+- 560.01
+    - activity too high to warrant burning a bunch of time
+- 1179.01
+    - note: Active (R'hk = -4.703), out of transit variability that phases at orbital period, likely EB, AO revealed a faint companion 2.5" away
