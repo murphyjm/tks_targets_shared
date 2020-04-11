@@ -38,7 +38,7 @@ def get_newest_csv(folder_path):
     list_of_files = glob.glob(folder_path) # * means all if need specific format then *.csv
     return max(list_of_files, key=os.path.getctime)
 
-def get_X_ranked_df(toi_path, tic_path, include_qlp=False, num_to_rank=3):
+def get_X_ranked_df(toi_path, tic_path, include_qlp=False, num_to_rank=3, dec_cut=-20, k_amp_cut=2):
     '''
     This function bascially replicates what the Priority-Tools-Tutorial notebook does
     but with the new X metric--the ratio of the TSM and the expected total exposure
@@ -74,7 +74,7 @@ def get_X_ranked_df(toi_path, tic_path, include_qlp=False, num_to_rank=3):
     TIC_info = pd.read_csv(tic_path, delimiter=',', comment='#', header=1, usecols=[0,1,2,3,4,5,6])
 
     # Run the data cleaning function
-    tess = clean_tess_data(toiplus, TIC_info, include_qlp=include_qlp)
+    tess = clean_tess_data(toiplus, TIC_info, include_qlp=include_qlp, dec_cut=dec_cut, k_amp_cut=k_amp_cut)
 
     # Load the known planets (and Kepler PCs) table, and merge it
     kps = pd.read_csv(r'data/kp-k14_pc-v14_w_mass_flag.csv') # This new file has the mass_flag column.
