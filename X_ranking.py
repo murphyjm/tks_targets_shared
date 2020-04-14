@@ -38,7 +38,7 @@ def get_newest_csv(folder_path):
     list_of_files = glob.glob(folder_path) # * means all if need specific format then *.csv
     return max(list_of_files, key=os.path.getctime)
 
-def get_X_ranked_df(toi_path, tic_path, include_qlp=False, num_to_rank=3, dec_cut=-20, k_amp_cut=2):
+def get_X_ranked_df(toi_path, tic_path, kp_file=r'data/kp-k14_pc-v14_w_mass_flag_composite.csv', include_qlp=False, num_to_rank=3, dec_cut=-20, k_amp_cut=2):
     '''
     This function bascially replicates what the Priority-Tools-Tutorial notebook does
     but with the new X metric--the ratio of the TSM and the expected total exposure
@@ -77,8 +77,25 @@ def get_X_ranked_df(toi_path, tic_path, include_qlp=False, num_to_rank=3, dec_cu
     tess = clean_tess_data(toiplus, TIC_info, include_qlp=include_qlp, dec_cut=dec_cut, k_amp_cut=k_amp_cut)
 
     # Load the known planets (and Kepler PCs) table, and merge it
-    kps = pd.read_csv(r'data/kp-k14_pc-v14_w_mass_flag.csv') # This new file has the mass_flag column.
+    kps = pd.read_csv(kp_file) # This new file has the mass_flag column. #
+
+    # Check if these values are missing, if they are, fill them in...
+    for index, row in kps.iterrows():
+        if np.isnan(row['K_amp']):
+            try:
+                row['K_amp'] = k_amp_finder(row['Stellar Mass'], row['Star Radius Value'], row['pl_masses'], row['Ars'])
+            except:
+                continue
+        if np.isnan(row['TSM']):
+            try:
+                row['TSM'] = get_TSM(row['Planet Radius Value'], row['Star Radius Value'], row['Effective Temperature Value'], row['J mag'], row['pl_masses'], row['Ars'])
+            except:
+                continue
+
+    #import pdb; pdb.set_trace()
+
     df = tess.append(kps[np.logical_and(kps['K_amp'] > 1.5, kps['TSM'] > 10)],sort=False)
+
 
     n_counts = 250 # This might change in the future
     df['t_HIRES'] = t_HIRES_plavchan(df['V mag'], n_counts, df['K_amp'])

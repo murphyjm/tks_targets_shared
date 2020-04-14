@@ -541,7 +541,7 @@ def has_obs(data, kpwks):
             ho[i] = 1
     return ho
 
-def bin_plotter(binned_data, bins, rbin, use_alpha=False):
+def bin_plotter(binned_data, bins, rbin, use_alpha=False, show_fig=True):
     '''
     Function for visualization of the binned data.
     Inputs are the dataframe itself and the radius bin
@@ -675,6 +675,7 @@ def bin_plotter(binned_data, bins, rbin, use_alpha=False):
     ax.set_xlabel(r'Insolation Flux')
     ax.set_title(title_txt)
 
-    plt.show()
+    if show_fig:
+        plt.show()
 
     return fig, ax
