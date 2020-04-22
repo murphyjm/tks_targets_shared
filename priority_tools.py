@@ -7,7 +7,10 @@
 
 import numpy as np
 import matplotlib
-matplotlib.use('TkAgg') # To fix annoying "python is not installed as a framework" error
+try:
+    matplotlib.use('TkAgg') # To fix annoying "python is not installed as a framework" error
+except ModuleNotFoundError:
+    pass
 import matplotlib.pyplot as plt
 import pandas as pd
 import astropy as ap
@@ -553,7 +556,7 @@ def bin_plotter(binned_data, bins, rbin, use_alpha=False, show_fig=True):
     data_copy = binned_data.copy()
     data_copy['has_spectrum'] = has_obs(data_copy, kpwks)
 
-    #we only want data products which have high atmospheric
+    #we I have a try...except block in my code and When an exception is throw. I really just want to continue with the code because in that case, everything is still able to run just fine. The problem is if you leave the except: block empty or with a #do nothing, it gives you a syntax error. I can't use continue because its not in a loop. Is there a keyword i can use that tells the code to just keep going?I have a try...except block in my code and When an exception is throw. I really just want to continue with the code because in that case, everything is still able to run just fine. The problem is if you leave the except: block empty or with a #do nothing, it gives you a syntax error. I can't use continue because its not in a loop. Is there a keyword i can use that tells the code to just keep going?I have a try...except block in my code and When an exception is throw. I really just want to continue with the code because in that case, everything is still able to run just fine. The problem is if you leave the except: block empty or with a #do nothing, it gives you a syntax error. I can't use continue because its not in a loop. Is there a keyword i can use that tells the code to just keep going?only want data products which have high atmospheric
     #priority or already have observations
     aois = data_copy[np.logical_or(
         data_copy['priority']!=0, data_copy['has_spectrum']==1
