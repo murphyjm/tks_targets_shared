@@ -69,27 +69,35 @@ def get_X_ranked_df(toi_path, tic_path, kp_file=r'data/known_planets/known_plane
     toiplus = pd.read_csv(toi_path, delimiter=',',header=4) # Latest: data/toi/toi+-2020-02-20.csv
 
     # Load the TIC star info
-    # NOTE: This pd.read_csv() call is being finicky for some reason.... - Joey, 03/23/20
     TIC_info = pd.read_csv(tic_path)
 
     # Run the data cleaning function
     tess = clean_tess_data(toiplus, TIC_info, include_qlp=include_qlp, dec_cut=dec_cut, k_amp_cut=k_amp_cut)
 
-    # Load the known planets (and Kepler PCs) table, and merge it
-    kps = pd.read_csv(kp_file) # This new file has the mass_flag column. #
+    # Manual TOI info
+    tess = add_extra_info() # Add some information manually if it isn't correct in the TOI+ table e.g. TOI-509.01 and TOI-509.02
+
+    # Load the known planets table, and merge it
+    kps = pd.read_csv(kp_file)
+
+    assert len(kps.index[pd.isnull(kps['Stellar Mass'])]) == 0, "Rows in known planets table with no stellar mass"
+    assert len(kps.index[pd.isnull(kps['Stellar Radius Value'])]) == 0, "Rows in known planets table with no stellar radius"
+    assert len(kps.index[pd.isnull(kps['Effective Temperature'])]) == 0, "Rows in known planets table with no Teff"
+    assert len(kps.index[pd.isnull(kps['pl_masses'])]) == 0, "Rows in known planets table with no planet mass"
 
     # Check if these values are missing, if they are, fill them in...
-    for index, row in kps.iterrows():
-        if np.isnan(row['K_amp']):
-            try:
-                row['K_amp'] = k_amp_finder(row['Stellar Mass'], row['Star Radius Value'], row['pl_masses'], row['Ars'])
-            except:
-                continue
-        if np.isnan(row['TSM']):
-            try:
-                row['TSM'] = get_TSM(row['Planet Radius Value'], row['Star Radius Value'], row['Effective Temperature Value'], row['J mag'], row['pl_masses'], row['Ars'])
-            except:
-                continue
+    # for index, row in kps.iterrows():
+    #     if np.isnan(row['K_amp']):
+    #         try:
+    #             row['K_amp'] = k_amp_finder(row['Stellar Mass'], row['Star Radius Value'], row['pl_masses'], row['Ars'])
+    #         except:
+    #             continue
+    #     if np.isnan(row['TSM']):
+    #         try:
+    #             row['TSM'] = get_TSM(row['Planet Radius Value'], row['Star Radius Value'], row['Effective Temperature Value'], row['J mag'], row['pl_masses'], row['Ars'])
+    #         except:
+    #             continue
+
 
     df = tess.append(kps[np.logical_and(kps['K_amp'] > 1.5, kps['TSM'] > 10)],sort=False)
 
