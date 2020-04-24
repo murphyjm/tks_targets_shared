@@ -1,0 +1,16 @@
+# These are stars that don't have a J-mag or K-mag on Exoplanet Archive,,
+# Filling in J-mag values where available by manually searching on Simbad,,
+fpl_hostname,j_mag,comments
+HD 202772 A, ,HD 202772 is a double star likely not resolved in 2MASS but resolved in Gaia. No J mag for HD 202772 A on Simbad. G mag of 8.2269.
+OGLE-TR-056, ,An EB with I mag 15.30 on Simbad
+OGLE-TR-10, ,I mag of 14.92 on Simbad
+OGLE-TR-111,14.70,
+OGLE-TR-113, ,Has an I mag of 14.42 and a K mag of 13.0 on Simbad. Hosts a 1.3 Mj planet.
+OGLE-TR-132, ,Has an I mag of 15.72 but no J mag on Simbad
+SWEEPS-11, ,SWEEPS-11 has an I mag of 18.75 and hosts a hot Jupiter (9.7 Mj +/- 5.0). No reported J mag on Simbad. See https://www.nature.com/articles/nature05158.pdf
+WASP-105,10.46,
+WASP-161,10.09,
+WASP-163,10.67,
+WASP-170,11.13,
+WASP-190,10.86,
+WASP-91,10.28,

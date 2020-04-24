@@ -7,13 +7,44 @@
 
 import numpy as np
 import matplotlib
-matplotlib.use('TkAgg') # To fix annoying "python is not installed as a framework" error
+try:
+    matplotlib.use('TkAgg') # To fix annoying "python is not installed as a framework" error
+except ModuleNotFoundError:
+    pass
 import matplotlib.pyplot as plt
 import pandas as pd
 import astropy as ap
+from astropy import constants as const
 from scipy.stats import binned_statistic_dd
 from scipy.stats import linregress
 from scipy.optimize import brentq
+
+def star_mass_from_logg_r(logg, r):
+    '''
+    Get the mass of a star given its surface gravity (log(g)) and radius.
+
+    Args
+    -----------
+    logg (float): Logarithm of surface gravity where [g] = cm/s^2
+    r (float): Stellar radius, in units of solar radius
+
+    Returns
+    ----------
+    Mass in units of solar masses.
+    '''
+    g = 10**(logg) * 0.01 # m/s**2
+    m = g * (r * const.R_sun)**2 / const.G # computes thing in kms units
+    return m / const.M_sun
+
+def get_insol_flux(ars, r, Teff):
+    '''
+    Calculate the luminosity of a star in units of solar luminosity.
+    '''
+    Teff_sun = 5777. # Kelvin
+    L_star = r**2 * (Teff / Teff_sun)**4
+    a = ars * r * const.R_sun / const.au # units of solar radius
+    insol_flux = L_star / a**2
+    return insol_flux
 
 def basic_mr(r):
     '''

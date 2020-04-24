@@ -38,7 +38,7 @@ parser.add_argument('--tic_folder', type=str, default='data/exofop/', help='Fold
 parser.add_argument('--selected_TOIs_folder', type=str, default='data/TKS/', help='Folder with selected_TOIs csv.')
 parser.add_argument('--include_qlp', type=str, default='False', help='Include QLP TOIs in ranking algorithm?')
 parser.add_argument('--verbose', type=str, default='True', help='Print additional messages during target list generation?')
-parser.add_argument('--num_to_rank', type=str, default='3', help='Number of targets to assign priorities to per bin.')
+parser.add_argument('--num_to_rank', type=str, default='5', help='Number of targets to assign priorities to per bin.')
 
 def save_to_csv(df, save_fname):
     '''
