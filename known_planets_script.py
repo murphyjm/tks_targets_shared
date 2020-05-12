@@ -137,30 +137,56 @@ def add_insol_flux(kp_df):
 
     return kp_df
 
-def rename_and_cut_columns(kp_df):
-    '''
-    Rename columns to match the column names in the TOI+ list. Cut down to only
-    the columns that we need.
-    '''
-    output_df = pd.DataFrame(data={
-    'Planet Radius Value':kp_df['fpl_rade'],
-    'Stellar Mass':kp_df['fst_mass'],
-    'Orbital Period Value':kp_df['fpl_orbper'],
-    'Star Radius Value':kp_df['fst_rad'],
-    'Effective Temperature Value':kp_df['fst_teff'],
-    'J mag':kp_df['j_mag'],
-    # 'V mag':kp_df['fst_optmag'], # Some of these are V mags and some are G. We don't use them for the known planets, so don't include for now.
-    'TIC Declination':kp_df['dec'],
-    'Effective Stellar Flux Value':kp_df['fpl_insol'],
-    'pl_masses':kp_df['fpl_bmasse'], # Can probably change the name of this column to something other than pl_masses?
-    'mass_flag':kp_df['mass_flag'],  # The mass flag should be unneccessary at some point
-    'Ars':kp_df['Ars'],
-    'K_amp':kp_df['K_amp'],
-    'TSM':kp_df['TSM'],
-    'Full TOI ID':kp_df['fpl_name']
-    })
+# def rename_and_cut_columns(kp_df):
+#     '''
+#     Rename columns to match the column names in the TOI+ list. Cut down to only
+#     the columns that we need.
+#     '''
+#
+#     output_df = pd.DataFrame(data={
+#     'Planet Radius Value':kp_df['fpl_rade'],
+#     'Stellar Mass':kp_df['fst_mass'],
+#     'Orbital Period Value':kp_df['fpl_orbper'],
+#     'Star Radius Value':kp_df['fst_rad'],
+#     'Effective Temperature Value':kp_df['fst_teff'],
+#     'J mag':kp_df['j_mag'],
+#     # 'V mag':kp_df['fst_optmag'], # Some of these are V mags and some are G. We don't use them for the known planets, so don't include for now.
+#     'TIC Declination':kp_df['dec'],
+#     'Effective Stellar Flux Value':kp_df['fpl_insol'],
+#     'pl_masses':kp_df['fpl_bmasse'], # Can probably change the name of this column to something other than pl_masses?
+#     'mass_flag':kp_df['mass_flag'],  # The mass flag should be unneccessary at some point
+#     'Ars':kp_df['Ars'],
+#     'K_amp':kp_df['K_amp'],
+#     'TSM':kp_df['TSM'],
+#     'Full TOI ID':kp_df['fpl_name']
+#     })
+#
+#     return output_df
 
+def rename_columns(kp_df):
+    '''
+    Rename columns to match the column names in the TOI+ list.
+    '''
+    import pdb; pdb.set_trace()
+    output_df = kp_df.rename(mapper={
+    'fpl_rade':'Planet Radius Value',
+    'fst_mass':'Stellar Mass',
+    'fpl_orbper':'Orbital Period Value',
+    'fst_rad':'Star Radius Value',
+    'fst_teff':'Effective Temperature Value',
+    'j_mag':'J mag',
+    'dec':'TIC Declination',
+    'fpl_insol':'Effective Stellar Flux Value',
+    'fpl_bmasse':'pl_masses', # Can probably change the name of this column to something other than pl_masses?
+    'mass_flag':'mass_flag',  # The mass flag should be unneccessary at some point
+    'Ars':'Ars',
+    'K_amp':'K_amp',
+    'TSM':'TSM',
+    'fpl_name':'Full TOI ID'
+    }, axis=1)
+    pdb.set_trace()
     return output_df
+
 
 def get_kp_df(kp_folder, composite_fname='composite.csv', confirmed_fname='confirmed_jmag.csv'):
     # Excluding KOI and K2 candidates for now because they don't have masses anyway.
@@ -209,7 +235,8 @@ def get_kp_df(kp_folder, composite_fname='composite.csv', confirmed_fname='confi
     kp_df = add_insol_flux(kp_df)
 
     # Rename columns to match those in the TOI+ table, cut extraneous columns
-    kp_df = rename_and_cut_columns(kp_df)
+    # kp_df = rename_and_cut_columns(kp_df)
+    kp_df = rename_columns(kp_df) # No need to cut the extra info. - Joey, 05/04/20
 
     # Read in data from KOI and K2 candidates
     # TODO: Ask Natalie: Do we really need to use KOI and K2 candidates? They don't

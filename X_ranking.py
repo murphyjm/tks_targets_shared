@@ -38,7 +38,7 @@ def get_newest_csv(folder_path):
     list_of_files = glob.glob(folder_path) # * means all if need specific format then *.csv
     return max(list_of_files, key=os.path.getctime)
 
-def get_X_ranked_df(toi_path, tic_path, kp_file=r'data/known_planets/known_planets.csv', include_qlp=False, num_to_rank=3, dec_cut=-20, k_amp_cut=2):
+def get_X_ranked_df(toi_path, tic_path, kp_file=r'data/known_planets/known_planets.csv', include_qlp=False, num_to_rank=5, dec_cut=-20, k_amp_cut=2):
     '''
     This function bascially replicates what the Priority-Tools-Tutorial notebook does
     but with the new X metric--the ratio of the TSM and the expected total exposure
@@ -69,20 +69,20 @@ def get_X_ranked_df(toi_path, tic_path, kp_file=r'data/known_planets/known_plane
     toiplus = pd.read_csv(toi_path, delimiter=',',header=4) # Latest: data/toi/toi+-2020-02-20.csv
 
     # Load the TIC star info
-    TIC_info = pd.read_csv(tic_path)
+    TIC_info = pd.read_csv(tic_path, comment='#')
 
     # Run the data cleaning function
     tess = clean_tess_data(toiplus, TIC_info, include_qlp=include_qlp, dec_cut=dec_cut, k_amp_cut=k_amp_cut)
 
     # Manual TOI info
-    tess = add_extra_info() # Add some information manually if it isn't correct in the TOI+ table e.g. TOI-509.01 and TOI-509.02
+    # tess = add_extra_info() # Add some information manually if it isn't correct in the TOI+ table e.g. TOI-509.01 and TOI-509.02
 
     # Load the known planets table, and merge it
     kps = pd.read_csv(kp_file)
 
     assert len(kps.index[pd.isnull(kps['Stellar Mass'])]) == 0, "Rows in known planets table with no stellar mass"
-    assert len(kps.index[pd.isnull(kps['Stellar Radius Value'])]) == 0, "Rows in known planets table with no stellar radius"
-    assert len(kps.index[pd.isnull(kps['Effective Temperature'])]) == 0, "Rows in known planets table with no Teff"
+    assert len(kps.index[pd.isnull(kps['Star Radius Value'])]) == 0, "Rows in known planets table with no stellar radius"
+    assert len(kps.index[pd.isnull(kps['Effective Temperature Value'])]) == 0, "Rows in known planets table with no Teff"
     assert len(kps.index[pd.isnull(kps['pl_masses'])]) == 0, "Rows in known planets table with no planet mass"
 
     # Check if these values are missing, if they are, fill them in...
@@ -139,7 +139,7 @@ def get_X_ranked_df(toi_path, tic_path, kp_file=r'data/known_planets/known_plane
 
     return compare_df, compare_diff_df
 
-def get_target_list(save_fname=None, toi_folder='data/toi/', tic_folder='data/exofop/', selected_TOIs_folder='data/TKS/', include_qlp=False, verbose=True, num_to_rank=3):
+def get_target_list(save_fname=None, toi_folder='data/toi/', tic_folder='data/exofop/', selected_TOIs_folder='data/TKS/', include_qlp=False, verbose=True, num_to_rank=5, k_amp_cut=2., min_TSM=0.):
     '''
     Get a target list that incorporates information from selected_TOIs and Jump.
 
@@ -158,7 +158,11 @@ def get_target_list(save_fname=None, toi_folder='data/toi/', tic_folder='data/ex
     verbose (optional, bool): Default=True. Print out additional information about
         the merging/filtering process while the call is executing.
     num_to_rank (int): Optionally change the number of targest ranked per bin. Default
-        is 3.
+        is 5.
+    k_amp_cut (float): Optionally drop targets from the final list with an expected
+        K-amp below this value. Default is 2, based on nominal 1 m/s HIRES RV precision.
+    min_TSM (float): Optionally drop targets from the final list with TSM below
+        this value. Default is 0, so no targets are dropped.
 
     Returns
     ----------
@@ -180,14 +184,14 @@ def get_target_list(save_fname=None, toi_folder='data/toi/', tic_folder='data/ex
 
     # Generate the binned data frame with the X rankings.
     print('Binning targets...')
-    X_df, __________ = get_X_ranked_df(toi_path, tic_path, include_qlp=include_qlp, num_to_rank=num_to_rank) # Don't really need the second dataframe that's returned
+    X_df, __________ = get_X_ranked_df(toi_path, tic_path, include_qlp=include_qlp, num_to_rank=num_to_rank, k_amp_cut=k_amp_cut) # Don't really need the second dataframe that's returned
     selected_TOIs_df = pd.read_csv(selected_TOIs_path)
     print("The X_df dataframe has {} rows.".format(len(X_df)))
     print("The selected_TOIs_df dataframe has {} rows.".format(len(selected_TOIs_df)))
     print('')
 
     # Merge X_df with selected_TOIs
-    X_tois_df = merge_with_selected_TOIs(X_df, selected_TOIs_df, verbose=verbose, num_to_rank=num_to_rank)
+    X_tois_df = merge_with_selected_TOIs(X_df, selected_TOIs_df, verbose=verbose, num_to_rank=num_to_rank, min_TSM=min_TSM)
 
     # TODO: Decide what information from Jump will be relevant
     # Incorporate information from Jump
@@ -200,7 +204,7 @@ def get_target_list(save_fname=None, toi_folder='data/toi/', tic_folder='data/ex
 
     return X_tois_df
 
-def merge_with_selected_TOIs(X_df, selected_TOIs_df, verbose=True, num_to_rank=3):
+def merge_with_selected_TOIs(X_df, selected_TOIs_df, verbose=True, num_to_rank=5, min_TSM=0.):
     '''
     Merge the binned, ranked dataframe of targets with those in selected_TOIs. Filter
     out targets from the merged dataframe that failed vetting in selected_TOIs,
@@ -212,7 +216,9 @@ def merge_with_selected_TOIs(X_df, selected_TOIs_df, verbose=True, num_to_rank=3
         See get_X_ranked_df() for details.
     selected_TOIs_df (DataFrame): DataFrame of the selected_TOIs Google spreadsheet.
     num_to_rank (int): Optionally change the number of targest ranked per bin. Default
-        is 3.
+        is 5.
+    min_TSM (float): Optionally drop targets from the final list with TSM below
+        this value. Default is 0, so no targets are dropped.
 
     Returns
     ----------
@@ -247,6 +253,13 @@ def merge_with_selected_TOIs(X_df, selected_TOIs_df, verbose=True, num_to_rank=3
     X_tois_df = X_tois_df[X_tois_df['hires_prv'] != 'no']
     if verbose:
         print("After filtering out targets whose hires_prv plan is 'no', {} rows remain.".format(len(X_tois_df)))
+
+    # Drop low TSM targets
+    low_TSM_df = X_tois_df[X_tois_df['TSM'] < min_TSM]
+    print(f'Dropping {len(low_TSM_df)} targets with TSM below {min_TSM}...')
+    low_TSM_tois = low_TSM_df['Full TOI ID'].values
+    print(f'Targets dropped for low TSM values: {low_TSM_tois}')
+    X_tois_df = X_tois_df[X_tois_df['TSM'] >= min_TSM]
 
     # Of the targets remaining, how many actually have a 1, 2, 3, etc. priority ranking in their bin?
     print('')

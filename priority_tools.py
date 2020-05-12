@@ -140,7 +140,7 @@ def k_amp_finder(star_mass,star_radius,planet_mass,ars,mp_units='Earth'):
     return v_pl
 
 def clean_tess_data(toi_plus_list, tic_star_info, dec_cut=-20,
-        k_amp_cut = 2, include_qlp=False):
+        k_amp_cut = 2.0, include_qlp=False):
     '''
     Performs cleaning on the toi+ list (available at tev.mit.edu) combined with
     the TIC star info, available at https://exofop.ipac.caltech.edu/tess/search.php.
@@ -151,50 +151,54 @@ def clean_tess_data(toi_plus_list, tic_star_info, dec_cut=-20,
     '''
 
     #give the toi plus list a shorter name that's easier to type (c is for catalog)
-    c = toi_plus_list.copy()
+    c_df = toi_plus_list.copy()
+
+    # Some of the TOI+ list info is incorrect for e.g. 509.01 and 1136.03
+    c_df = fix_tois_by_hand(c_df)
 
     #read in the TIC info, which has magnitude data that's missing from the TOI+ list
     star_info = tic_star_info
 
     #generate star mass from logg because that's easier to look at
-    c['Stellar Mass'] = ((10**c['Surface Gravity Value']) * ((c['Star Radius Value']\
+    c_df['Stellar Mass'] = ((10**c_df['Surface Gravity Value']) * ((c_df['Star Radius Value']\
             *6.9551e10)**2) /  6.67e-8 ) / 1.99e33
 
     #generate mass, ars, and K_amp values; merge w/ TIC
-    c[mp_key] = basic_mr(c[rp_key])
-    c[ars_key] = ars_from_t(c[pp_key], c[ms_key], c[rs_key])
-    c['K_amp'] = k_amp_finder(c[ms_key],c[rs_key],c[mp_key],c[ars_key])
-    c['mass_flag'] = 0. # Mass flag is 1 if targets have a known mass, 0 if calculated from M-R relationship.
+    c_df[mp_key] = basic_mr(c_df[rp_key])
+    c_df[ars_key] = ars_from_t(c_df[pp_key], c_df[ms_key], c_df[rs_key])
+    c_df['K_amp'] = k_amp_finder(c_df[ms_key],c_df[rs_key],c_df[mp_key],c_df[ars_key])
+    c_df['mass_flag'] = 0. # Mass flag is 1 if targets have a known mass, 0 if calculated from M-R relationship.
                         # A few TOIs are known planets *with* masses, though, so this is slightly incorrect.
                         # To fix, need to get a list of TOIs that are KPs with masses.
-    catalog_2 = pd.merge(c,star_info, left_on = 'TIC', right_on = 'Target')
+    
+    catalog_2 = pd.merge(c_df,star_info, left_on = 'TIC', right_on = 'Target')
 
     #get rid of junk columns
     c2 = catalog_2.drop(columns=['TFOP SG1a','TFOP SG1b','TFOP SG2',\
                                 'TFOP SG3','TFOP SG4','TFOP SG5','TFOP Master',\
                                 'TOI Disposition'])
-    c = c2
-    c['TSM'] = get_TSM(c[rp_key],c[rs_key],c[Ts_key],c[Jmag_key],c[mp_key],c[ars_key])
+    c_df = c2
+    c_df['TSM'] = get_TSM(c_df[rp_key],c_df[rs_key],c_df[Ts_key],c_df[Jmag_key],c_df[mp_key],c_df[ars_key])
 
     #get rid of anything with unknown radius or period values,
     #and optionally throw QLP planets back in
     if include_qlp == False:
-        c = c[np.logical_and.reduce((c[rp_key]>0, c[pp_key]>0,
-            c['Source Pipeline']=='spoc'))]
+        c_df = c_df[np.logical_and.reduce((c_df[rp_key]>0, c_df[pp_key]>0,
+            c_df['Source Pipeline']=='spoc'))]
     elif include_qlp == True:
-        c = c[np.logical_and(c[rp_key]>0, c[pp_key]>0)]
-    c = c.drop_duplicates(subset=id_key).reset_index(drop=True)
+        c_df = c_df[np.logical_and(c_df[rp_key]>0, c_df[pp_key]>0)]
+    c_df = c_df.drop_duplicates(subset=id_key).reset_index(drop=True)
 
     #get observational desirables. Note that there are no mag cuts made
     #I exempt a few planets from the Kamp cut because they're bright
     #enough that we've been observing them anyway!
     desirables = np.logical_and(
-            c[dec_key]>dec_cut,
+            c_df[dec_key]>dec_cut,
             np.logical_or.reduce((
-                c['K_amp']>k_amp_cut, c[id_key]==554.01,
-                c[id_key]==431.02)
+                c_df['K_amp']>k_amp_cut, c_df[id_key]==554.01,
+                c_df[id_key]==431.02)
             ))
-    catalog_cleaned = c[desirables]#.drop_duplicates(subset='TOI')
+    catalog_cleaned = c_df[desirables]#.drop_duplicates(subset='TOI')
     cc = catalog_cleaned.reset_index(drop=True)
 
     #remove known FPs or repeats. excluded_tois.txt explains
@@ -209,6 +213,35 @@ def clean_tess_data(toi_plus_list, tic_star_info, dec_cut=-20,
         ))]
 
     return cc
+
+def fix_tois_by_hand(df):
+    '''
+    There are some TOIs (like 509) that have incorrect information in the TOI+ list.
+    Fix this info by hand.
+    '''
+
+    # Fix entry for 509.01
+    # Values calculated by hand from our own fits to lc and RVs.
+    ind_509 = df.query("`Full TOI ID` == 509.01").index[0]
+    df.at[ind_509, "Planet Radius Value"] = 2.9363 # R_earth
+    df.at[ind_509, "Orbital Period Value"] = 9.059881535 # days. From Juliet light curve fit
+    df.at[ind_509, "Effective Stellar Flux Value"] = 135.5821 # Earth insolation
+    df.at[ind_509, "Planet Equilibrium Temperature (K) Value"] = 948.478 # Kelvin
+
+    # TODO:
+    # Create a line in the target list for 509.02
+
+    # Fix entry for 1339.03
+    # Values from discovery paper (https://arxiv.org/abs/2002.03958)
+    # unless otherwise noted.
+    ind_133903 = df.query("`Full TOI ID` == 1339.03").index[0]
+    df.at[ind_133903, "Planet Radius Value"] = 3.16 # R_earth
+    df.at[ind_133903, "Planet Radius Error"] = 0.11 # R_earth
+    df.at[ind_133903, "Orbital Period Value"] = 38.35 # days
+    df.at[ind_133903, "Effective Stellar Flux Value"] = 14.8 # Earth insolation. This value is calculate by hand
+    df.at[ind_133903, "Planet Equilibrium Temperature (K) Value"] = 499 # Kelvin
+
+    return df
 
 def binning_function(dataset,bins,id_key='Full TOI ID', sort_val='TSM'):
     '''
@@ -478,7 +511,10 @@ def counts_to_sigma(counts):
 
 def t_HIRES_plavchan(vmag, n_counts, k, SNR=5.):
     '''
-    Calculate the total HIRES time (in seconds) needed to get a SNR-sigma detection of a planet.
+    Calculate the total HIRES time (in seconds) needed to get a SNR-sigma detection
+    of a planet. Taken from Plavchan et al 2015 (ExoPAG white paper). First equation
+    in section 4.2.5, used without the factor of 2 since the transit gives us the
+    orbit (in theory).
 
     Some caveats:
         - This is really a SNR-sigma detection of the planet in velocity space, not mass. If there are significant

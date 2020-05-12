@@ -33,18 +33,21 @@ from X_ranking import *
 # Command line arguments. For most uses, the defaults will be fine.
 parser = argparse.ArgumentParser(description='Rank targets in selected_TOIs.')
 parser.add_argument('save_fname', type=str, default=None, help='File save path for output.')
+parser.add_argument('--save_folder', type=str, default='data/sc3_target_lists/', help='Folder where the output will be saved.')
 parser.add_argument('--toi_folder', type=str, default='data/toi/', help='Folder with toi+ lists.')
 parser.add_argument('--tic_folder', type=str, default='data/exofop/', help='Folder with TIC info.')
 parser.add_argument('--selected_TOIs_folder', type=str, default='data/TKS/', help='Folder with selected_TOIs csv.')
 parser.add_argument('--include_qlp', type=str, default='False', help='Include QLP TOIs in ranking algorithm?')
 parser.add_argument('--verbose', type=str, default='True', help='Print additional messages during target list generation?')
 parser.add_argument('--num_to_rank', type=str, default='5', help='Number of targets to assign priorities to per bin.')
+parser.add_argument('--k_amp_cut', type=float, default=2., help='Minimum expected K-amplitude that targets must have to make the final list.')
+parser.add_argument('--min_TSM', type=float, default=0., help='Minimum TSM value that targets must have to make the final list.')
 
-def save_to_csv(df, save_fname):
+def save_to_csv(df, save_fname, save_folder):
     '''
     Save the df to file.
     '''
-    df.to_csv(save_fname)
+    df.to_csv(save_folder + save_fname)
     print('The target list was saved to {}.'.format(save_fname))
 
 def mark_vip_targets(df, vip_fname):
@@ -69,10 +72,13 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
     save_fname = args.save_fname
+    save_folder = args.save_folder
     toi_folder = args.toi_folder
     tic_folder = args.tic_folder
     selected_TOIs_folder = args.selected_TOIs_folder
     num_to_rank = int(args.num_to_rank)
+    k_amp_cut = float(args.k_amp_cut)
+    min_TSM = float(args.min_TSM)
 
     # Convert these optional arguments to other data types, if they're specified.
     include_qlp_str = args.include_qlp
@@ -94,7 +100,7 @@ if __name__ == '__main__':
     # Get the initial target list
     print('Generating initial target list...')
     print('')
-    X_tois_df = get_target_list(save_fname=None, toi_folder=toi_folder, tic_folder=tic_folder, selected_TOIs_folder=selected_TOIs_folder, include_qlp=include_qlp, verbose=verbose, num_to_rank=num_to_rank)
+    X_tois_df = get_target_list(save_fname=None, toi_folder=toi_folder, tic_folder=tic_folder, selected_TOIs_folder=selected_TOIs_folder, include_qlp=include_qlp, verbose=verbose, num_to_rank=num_to_rank, k_amp_cut=k_amp_cut, min_TSM=min_TSM)
     print('----------')
 
     # Add VIP targets
@@ -114,11 +120,11 @@ if __name__ == '__main__':
                     print('')
                     print('That is not a valid path, enter another...')
             X_tois_df = mark_vip_targets(X_tois_df, vip_fname)
-            save_to_csv(X_tois_df, save_fname)
+            save_to_csv(X_tois_df, save_fname, save_folder)
         elif vip_yn in ['no', 'n']:
             vip_yn_valid = True
             X_tois_df = mark_vip_targets(X_tois_df, '') # Add the vip_rank column but leave it empty
-            save_to_csv(X_tois_df, save_fname)
+            save_to_csv(X_tois_df, save_fname, save_folder)
         else:
             print('Please enter yes or no...')
     print('----------')
