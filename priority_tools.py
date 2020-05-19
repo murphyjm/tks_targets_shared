@@ -170,7 +170,7 @@ def clean_tess_data(toi_plus_list, tic_star_info, dec_cut=-20,
     c_df['mass_flag'] = 0. # Mass flag is 1 if targets have a known mass, 0 if calculated from M-R relationship.
                         # A few TOIs are known planets *with* masses, though, so this is slightly incorrect.
                         # To fix, need to get a list of TOIs that are KPs with masses.
-    
+
     catalog_2 = pd.merge(c_df,star_info, left_on = 'TIC', right_on = 'Target')
 
     #get rid of junk columns
@@ -625,6 +625,7 @@ def bin_plotter(binned_data, bins, rbin, use_alpha=False, show_fig=True):
     aois = data_copy[np.logical_or(
         data_copy['priority']!=0, data_copy['has_spectrum']==1
         )]
+    
     rbin1 = aois.loc[rbin,:,:]
 
     #get the bin edges

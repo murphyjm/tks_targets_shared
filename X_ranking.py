@@ -285,20 +285,20 @@ def merge_with_selected_TOIs(X_df, selected_TOIs_df, verbose=True, num_to_rank=5
 #     return None
 
 
-def summary_plot(df, benchmark_targets=None, id_key='Full TOI ID', hist_bin_num=10):
+def summary_plot(sc3_df, benchmark_targets=None, id_key='Full TOI ID', hist_bin_num=10):
     '''
-    Create a summary plot of where the ranked targets in df fall in V magnitude,
+    Create a summary plot of where the ranked targets in sc3_df fall in V magnitude,
     K-amplitude, planet radius, and priority. Optionally include the IDs of systems
     that are benchmarks for reference.
 
     Args
     ----------
-    df (DataFrame): DataFrame like the output of get_X_ranked_df(), containing targets
+    sc3_df (DataFrame): DataFrame like the output of get_X_ranked_df(), containing targets
         with an associated X metric.
     benchmark_targets (optional, array_like): Default=None. A list of target id_keys
         that will be highlighted in the scatter plots as reference points.
     id_key (optional, str): Default='Full TOI ID'. The column to use to identify
-        the targets in df.
+        the targets in sc3_df.
     hist_bin_num (optional, int): Default=10. The number of histogram to use for
         the histograms.
 
@@ -308,23 +308,23 @@ def summary_plot(df, benchmark_targets=None, id_key='Full TOI ID', hist_bin_num=
     axes: An array of the figure's subplot axes.
     '''
 
-    def plot_benchmark_targets(planet_list):
+    def plot_benchmark_targets(planet_list, col='blue'):
         for i,planet in enumerate(planet_list):
-            curr_row = df[df[id_key] == planet]
+            curr_row = sc3_df[sc3_df[id_key] == planet]
 
             if type(planet) != str:
                 planet = str(planet)
 
             if i == 0:
-                ax_vmag.plot(curr_row['V mag'].values, curr_row['X'].values, '.', color='red', alpha=0.7, label='VIP Target')
+                ax_vmag.plot(curr_row['V mag'].values, curr_row['X'].values, '.', color=col, alpha=0.7)
             else:
-                ax_vmag.plot(curr_row['V mag'].values, curr_row['X'].values, '.', color='red', alpha=0.7)
+                ax_vmag.plot(curr_row['V mag'].values, curr_row['X'].values, '.', color=col, alpha=0.7)
             ax_vmag.text(curr_row['V mag'].values[0] + 0.1, curr_row['X'].values[0] * 1.25, planet, fontsize=12)
 
-            ax_kamp.plot(curr_row['K_amp'].values, curr_row['X'].values, '.', color='red', alpha=0.7)
+            ax_kamp.plot(curr_row['K_amp'].values, curr_row['X'].values, '.', color=col, alpha=0.7)
             ax_kamp.text(curr_row['K_amp'].values[0] * 1.025, curr_row['X'].values[0] * 1.25, planet, fontsize=12)
 
-            ax_rad.plot(curr_row['Planet Radius Value'].values, curr_row['X'].values, '.', color='red', alpha=0.7)
+            ax_rad.plot(curr_row['Planet Radius Value'].values, curr_row['X'].values, '.', color=col, alpha=0.7)
             ax_rad.text(curr_row['Planet Radius Value'].values[0] * 1.01,
                         curr_row['X'].values[0] * 1.25, planet, fontsize=12)
 
@@ -332,48 +332,59 @@ def summary_plot(df, benchmark_targets=None, id_key='Full TOI ID', hist_bin_num=
     ax_vmag, ax_kamp, ax_rad, ax_p_vmag, ax_p_kamp, ax_p_rad = axes.flatten()
 
     # Plot as a function of V magnitude
-    ax_vmag.plot(df['V mag'], df['X'], '.', alpha=0.5, label='Picked by SC3')
+    ax_vmag.plot(sc3_df['V mag'], sc3_df['X'], '.', alpha=0.7, color='blue', label='Picked by SC3')
+    # ax_vmag.plot(picks_df['vmag'], picks_df['X'], '.', alpha=0.5, color='gray', label='Full Sample') # Need to compute X metric for all of the TOIs if we want to do this
+
     vmag_low, vmag_high = ax_vmag.get_xlim()
     ax_vmag.set_xlim([vmag_high, vmag_low]) # Invert x axis
     ax_vmag.set_xlabel('$V$ [mag]', fontsize=14)
 
     # Plot as a function of K-amplitude
-    ax_kamp.plot(df['K_amp'], df['X'], '.', alpha=0.3)
+    ax_kamp.plot(sc3_df['K_amp'], sc3_df['X'], '.', alpha=0.7)
+    # ax_kamp.plot(picks_df['K_amp'], picks_df['X'], '.', alpha=0.5, color='gray')
     ax_kamp.set_xlabel('$K$ [m s$^{-1}$]', fontsize=14)
 
     # Plot as a function of radius (though I think this is the same information as K-amplitude)
-    ax_rad.plot(df['Planet Radius Value'], df['X'], '.', alpha=0.3)
+    ax_rad.plot(sc3_df['Planet Radius Value'], sc3_df['X'], '.', alpha=0.7)
+    # ax_rad.plot(picks_df['Planet Radius Value'], picks_df['X'], '.', alpha=0.5, color='gray')
     ax_rad.set_xlabel(r'$R$ [$R_\oplus$]', fontsize=14)
 
     # Mark some notable planets for context
     if benchmark_targets is not None:
-        assert all([target in df[id_key].values for target in benchmark_targets]), \
+        assert all([target in sc3_df[id_key].values for target in benchmark_targets]), \
         'One of the benchmark targets is not contained in the DataFrame.'
         plot_benchmark_targets(benchmark_targets)
 
-    ax_vmag.legend(fancybox=True, fontsize=12)
+    ax_vmag.legend(fancybox=True, fontsize=12, loc='lower left')
 
-    # Plot histograms of p1, p2, and p3 targets
+    # Plot histograms of p1, p2, p3, p4, p5 targets
     hist_axes = [ax_p_vmag, ax_p_kamp, ax_p_rad]
     hist_keys = ['V mag', 'K_amp', 'Planet Radius Value']
     for ax, key in zip(hist_axes, hist_keys):
         bins = None
         if key == 'V mag':
-            bins = np.linspace(df[key].min(), df[key].max(), hist_bin_num)
+            bins = np.linspace(sc3_df[key].min(), sc3_df[key].max(), hist_bin_num)
         elif key == 'K_amp':
-            bins = np.logspace(0, 2, hist_bin_num)
+            bins = np.logspace(0, np.log10(50), hist_bin_num)
         elif key == 'Planet Radius Value':
-            bins = np.logspace(0, np.log10(df[key].max()), hist_bin_num)
-        colors = ['blue', 'black', 'red']
-        for i in range(1, 4):
+            bins = np.logspace(0, np.log10(sc3_df[key].max()), hist_bin_num)
+        colors = ['blue', 'black', 'red', 'orange', 'yellow']
+        for i in range(1, 6):
             histtype = None
-            if i == 1 or i == 2:
+            linestyle = '-'
+            hatch = None
+            if i == 1 or i == 2 or i == 3:
                 histtype='stepfilled'
-            elif i == 3:
+            elif i == 4:
                 histtype='step'
-            ax.hist(df[df['X_priority'] == i][key].dropna().values,
-            bins=bins, histtype=histtype, alpha=0.7, color=colors[i-1], label='Priority {}'.format(i))
-        ax.legend(fancybox=True, fontsize=12)
+                linestyle='--'
+            elif i == 5:
+                histtype='step'
+                hatch='/'
+            ax.hist(sc3_df[sc3_df['X_priority'] == i][key].dropna().values,
+            bins=bins, histtype=histtype, alpha=0.7, color=colors[i-1], linestyle=linestyle, hatch=hatch, label='Priority {}'.format(i))
+        if key == 'Vmag':
+            ax.legend(fancybox=True, fontsize=12)
 
     ax_p_vmag.set_ylabel('N', fontsize=14)
     ax_p_vmag.set_xlabel('$V$ [mag]', fontsize=14)
