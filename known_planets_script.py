@@ -35,12 +35,15 @@ Exoplanet Archive data from the confirmed table, usually just the Planet Name an
 # parser.add_argument('--k2_fname', type=str, default='k2_above_v14.csv', help='Name of the .csv file containing \
 # Exoplanet Archive data from the K2 table.')
 
-def kp_match_jmags(composite_df, confirmed_df):
+def kp_match_mags(composite_df, confirmed_df):
     '''
     Using information from the confirmed data table, if we can replace the Ks mags
     from the composite table with J mags from the confirmed table, do so. If not,
     leave the Ks mags. Make a note in a new column to say which mag is being used,
     since it goes into calculating the TSM values.
+
+    Do the same for V mags from the confirmed data table and the optical magnitudes 
+    that are included in the composite table (most of which would be V in any case).
 
     Args
     ----------
@@ -56,6 +59,8 @@ def kp_match_jmags(composite_df, confirmed_df):
     now supplemented with the J mag values from the confirmed table, and in a few
     cases e.g. WASP-91, WASP-105 (see data/known_planets/simbad_jmag_notes.txt)
     J mag values from Simbad.
+
+    Also add in V mag values from the confirmed table.
     '''
 
     kp_df = composite_df.merge(confirmed_df, how='left', left_on='fpl_name', right_on='pl_name')
@@ -167,7 +172,7 @@ def rename_columns(kp_df):
     '''
     Rename columns to match the column names in the TOI+ list.
     '''
-    import pdb; pdb.set_trace()
+    
     output_df = kp_df.rename(mapper={
     'fpl_rade':'Planet Radius Value',
     'fst_mass':'Stellar Mass',
@@ -175,6 +180,7 @@ def rename_columns(kp_df):
     'fst_rad':'Star Radius Value',
     'fst_teff':'Effective Temperature Value',
     'j_mag':'J mag',
+    'fst_optmag':'Opt mag',
     'dec':'TIC Declination',
     'fpl_insol':'Effective Stellar Flux Value',
     'fpl_bmasse':'pl_masses', # Can probably change the name of this column to something other than pl_masses?
@@ -184,7 +190,31 @@ def rename_columns(kp_df):
     'TSM':'TSM',
     'fpl_name':'Full TOI ID'
     }, axis=1)
-    pdb.set_trace()
+
+    # Uncommment these lines to prepare a known_planets.csv file for the TKS target selection algorithm
+    # These lines rename columns to match the column headers in TOIs_perfect and remove extraneous columns.
+    
+    # output_df = kp_df.rename(mapper={
+    # 'fpl_rade':'rp',
+    # 'fst_mass':'Stellar Mass',
+    # 'fpl_orbper':'period',
+    # 'fst_rad':'r_s',
+    # 'fst_teff':'teff',
+    # 'j_mag':'jmag',
+    # 'fst_optmag':'Opt mag',
+    # 'dec':'TIC Declination',
+    # 'fpl_insol':'sinc',
+    # 'fpl_bmasse':'mp', 
+    # 'mass_flag':'mass_flag',  # The mass flag should be unneccessary at some point
+    # 'Ars':'a_to_R',
+    # 'K_amp':'K_amp',
+    # 'TSM':'TSM',
+    # 'fpl_name':'fpl_name'
+    # }, axis=1)
+
+    # output_df = output_df.loc[pd.notnull(output_df['TSM'])]
+    # return output_df[['fpl_name', 'rp', 'teff', 'sinc', 'mp', 'period', 'TSM']]
+    
     return output_df
 
 
@@ -209,7 +239,7 @@ def get_kp_df(kp_folder, composite_fname='composite.csv', confirmed_fname='confi
     composite_df = pd.read_csv(kp_folder + composite_fname, comment="#")
     confirmed_df = pd.read_csv(kp_folder + confirmed_fname, comment="#")
 
-    kp_df = kp_match_jmags(composite_df, confirmed_df)
+    kp_df = kp_match_mags(composite_df, confirmed_df)
 
     # 5 rows still have missing (and necessary) information for some reason:
     # Kepler 60 b, c, d, WASP-157 b, and WASP-85 A b.

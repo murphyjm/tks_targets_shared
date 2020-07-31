@@ -102,8 +102,9 @@ def get_X_ranked_df(toi_path, tic_path, kp_file=r'data/known_planets/known_plane
 
     df = tess.append(kps[np.logical_and(kps['K_amp'] > 1.5, kps['TSM'] > 10)],sort=False)
 
-
-    n_counts = 250 # This might change in the future
+    # See note in counts_to_sigma() in priority_tools.py for context on why these times
+    # to a 5-sigma mass are systematically underestimated.
+    n_counts = 80 # This might change in the future.
     df['t_HIRES'] = t_HIRES_plavchan(df['V mag'], n_counts, df['K_amp'])
     df['X'] = df['TSM']/df['t_HIRES']
 

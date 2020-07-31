@@ -241,6 +241,13 @@ def fix_tois_by_hand(df):
     df.at[ind_133903, "Effective Stellar Flux Value"] = 14.8 # Earth insolation. This value is calculate by hand
     df.at[ind_133903, "Planet Equilibrium Temperature (K) Value"] = 499 # Kelvin
 
+    # Fix radius for TOI-1835.01
+    # Value from my own fitting of the two good transits
+    ind_183501 = df.query("`Full TOI ID` == 1835.01").index[0]
+    df.at[ind_183501, "Planet Radius Value"] = 2.34 # R_earth
+    df.at[ind_183501, "Planet Radius Error"] = np.median([0.33, 0.37]) # R_earth
+    
+
     return df
 
 def binning_function(dataset,bins,id_key='Full TOI ID', sort_val='TSM'):
@@ -492,10 +499,16 @@ def counts_to_sigma(counts):
 
     Returns:
         Radial velocity measurement precision, in m/s.
+
+    Note that the precision is systematically underestimated, and only accounts
+        for photon noise. For a better sense of how targets actually perform, find
+        a similar target on Jump and look at the actual velocity precision for each
+        measurement.
     '''
     counts_to_sigma_dict = {
         30:2.5,
         60:2.,
+        80:3.9, # Specific to TOI-1759
         120:1.4,
         125:1.5,
         250:1.
@@ -590,7 +603,7 @@ def return_known_spectra():
                    1,              0,           0,
                    0,              0,           0,
                    0,              0,           1,
-                   0]
+                   1]
 
     return (kp_w_spectra, has_features)
 
@@ -608,8 +621,12 @@ def has_obs(data, kpwks):
             ho[i] = 1
     return ho
 
-def bin_plotter(binned_data, bins, rbin, use_alpha=False, show_fig=True):
+def bin_plotter(binned_data, bins, rbin, fig=None, ax=None, use_alpha=False, show_fig=True, save_fig=False, save_fname=''):
     '''
+    TODO
+    This function needs updating
+
+
     Function for visualization of the binned data.
     Inputs are the dataframe itself and the radius bin
     (1, 2, 3, 4, or 5) of interest.
@@ -626,6 +643,7 @@ def bin_plotter(binned_data, bins, rbin, use_alpha=False, show_fig=True):
         data_copy['priority']!=0, data_copy['has_spectrum']==1
         )]
     
+    
     rbin1 = aois.loc[rbin,:,:]
 
     #get the bin edges
@@ -637,6 +655,7 @@ def bin_plotter(binned_data, bins, rbin, use_alpha=False, show_fig=True):
     rp = np.array(rbin1[rp_key])
     P = np.array(rbin1['priority'])
     N = np.array(rbin1[id_key])
+    TSM = np.array(rbin1['TSM'])
     #okay, so I think one useful method would be to try to print these and use the
     #annotate function
     #(https://stackoverflow.com/questions/14432557/matplotlib-scatter-plot-
@@ -710,23 +729,31 @@ def bin_plotter(binned_data, bins, rbin, use_alpha=False, show_fig=True):
         else:
             return 'black'
 
-    fig, ax = plt.subplots(figsize=(14,9))
+    if fig is None or ax is None:
+        fig, ax = plt.subplots(figsize=(14,9))
     figsize=[10,7]
     ax.grid()
     txt = np.array(rbin1[id_key])
 
     #doing the title stuff
     bin_edges = np.round(bins[0],1)
+    
     title_txt = r'Planets & Planet Candidates With Radius Between ' + str(bin_edges[rbin-1]) + r' and ' + \
         str(bin_edges[rbin]) + r'$R_\oplus$'
 
 
     for i in np.arange(len(rbin1)):
         if use_alpha:
-            ax.semilogx(F[i], Ts[i], '.',ms=rp[i]*5, color=colorfinder(N[i],P[i]), alpha=alphafinder(N[i], P[i]))
+            zorder = None
+            alpha = alphafinder(N[i], P[i])
+            if alpha == 1.:
+                zorder = -100
+            else:
+                zorder = 100
+            ax.semilogx(F[i], Ts[i], '.',ms=rp[i]*5, color=colorfinder(N[i],P[i]), alpha=alpha, zorder=zorder)
         else:
             ax.semilogx(F[i], Ts[i], '.',ms=rp[i]*5, color=colorfinder(N[i],P[i]))
-        ax.annotate(txt[i], (F[i], Ts[i]+rp[i]*9),color=textcolorfinder(N[i]), alpha=0.7)
+        ax.annotate(str(txt[i]) + f'\nTSM = {TSM[i]:.1f}', (F[i], Ts[i]+rp[i]*9),color=textcolorfinder(N[i]), alpha=0.7)
 
     ##added for TKS in person
     for f in np.arange(1,6,1):
@@ -742,6 +769,9 @@ def bin_plotter(binned_data, bins, rbin, use_alpha=False, show_fig=True):
     ax.set_ylabel('Stellar Effective Temperature (K)')
     ax.set_xlabel(r'Insolation Flux')
     ax.set_title(title_txt)
+
+    if save_fig:
+        fig.savefig(f'{save_fname}')
 
     if show_fig:
         plt.show()

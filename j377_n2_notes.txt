@@ -1,0 +1,7 @@
+j377_n2 notes
+
+End of night summary: Overall a pretty good night. First half went smoothly with seeing between 1-1.4". Ryan and Alex noticed that each of the three visits to the compact companion target KIC4078743 only needed to be single shots instead of triple, giving us back about an hour of time in the script.
+The second half was also pretty smooth. Seeing was stable at 1.1-1.2" with counts coming in ~nominal or better. Humidity crept up about an hour before twilight but then stabilized again.
+We were able to grab all p1 and p2 targets and some p3's. Completed jitter tests for TOI-1706, TOI-1609, and HD 192279 (TOI-1304). Observed K00375 which just passed through periastron (n.b. C1 decker).
+We skipped HD 13931 and HD 3765 during the twilight sequence to make up some time since we underestimated the slew going South to get to AU Mic (and then had extra time after skipping them so we took a triple shot of HD 19373).
+End of night score: 4 (seeing) + 4.5 (exp time) = 8.5

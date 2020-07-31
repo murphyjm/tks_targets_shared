@@ -1,9 +1,0 @@
-*.h5 # Ignore large files
-
-# Ignore these backup files
-.DS_store
-__pycache__/*
-*.swp
-
-# Ignore files for local testing
-Joey_meddling.ipynb
